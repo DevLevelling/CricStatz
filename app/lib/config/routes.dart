@@ -1,4 +1,8 @@
 import 'package:cricstatz/screens/home/home_screen.dart';
+import 'package:cricstatz/screens/match/info.dart';
+import 'package:cricstatz/screens/match/live.dart';
+import 'package:cricstatz/screens/match/players.dart';
+import 'package:cricstatz/screens/match/scoreboard.dart';
 import 'package:cricstatz/screens/match/toss_screen.dart';
 import 'package:cricstatz/screens/match/upcoming_fixtures_screen.dart';
 import 'package:cricstatz/screens/stats/results_screen.dart';
@@ -8,12 +12,20 @@ class AppRoutes {
   static const String home = '/';
   static const String toss = '/matches/toss';
   static const String upcoming = '/matches/upcoming';
+  static const String info = '/matches/info';
+  static const String live = '/matches/live';
+  static const String scoreboard = '/matches/scoreboard';
+  static const String players = '/matches/players';
   static const String results = '/results';
 
   static Map<String, WidgetBuilder> get routeTable => {
         home: (_) => const HomeScreen(),
         toss: (_) => const TossScreen(),
         upcoming: (_) => const UpcomingFixturesScreen(),
+        info: (_) => const MatchInfoScreen(),
+        live: (_) => const MatchLiveScreen(),
+        scoreboard: (_) => const MatchScoreboardScreen(),
+        players: (_) => const MatchPlayersScreen(),
         results: (_) => const ResultsScreen(),
       };
 
