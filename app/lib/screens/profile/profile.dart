@@ -1,6 +1,6 @@
 import 'package:cricstatz/config/palette.dart';
 import 'package:cricstatz/providers/auth_provider.dart';
-import 'package:cricstatz/screens/auth/login_screen.dart';
+import 'package:cricstatz/services/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -73,12 +73,7 @@ class _Header extends StatelessWidget {
               if (value == 'logout') {
                 await context.read<AuthProvider>().signOut();
                 if (context.mounted) {
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const LoginScreen(),
-                    ),
-                    (route) => false,
-                  );
+                  Navigator.of(context).popUntil((route) => route.isFirst);
                 }
               }
             },
@@ -115,6 +110,196 @@ class _ProfileBody extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showEditProfileSheet(BuildContext context) {
+  final auth = context.read<AuthProvider>();
+  final profile = auth.profile;
+  if (profile == null) return;
+
+  final usernameController = TextEditingController(text: profile.username);
+  final displayNameController =
+      TextEditingController(text: profile.displayName);
+  String selectedRole = profile.role;
+  bool isSaving = false;
+
+  const roles = ['batter', 'bowler', 'all-rounder', 'wicket-keeper'];
+
+  showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: AppPalette.bgSecondary,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (sheetContext) {
+      return StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              24,
+              24,
+              24,
+              24 + MediaQuery.of(ctx).viewInsets.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Edit Profile',
+                  style: TextStyle(
+                    color: AppPalette.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: displayNameController,
+                  style: const TextStyle(color: AppPalette.textPrimary),
+                  decoration: InputDecoration(
+                    labelText: 'Display Name',
+                    labelStyle:
+                        const TextStyle(color: AppPalette.textMuted),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: AppPalette.cardStroke),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: AppPalette.accent),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: usernameController,
+                  style: const TextStyle(color: AppPalette.textPrimary),
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    labelStyle:
+                        const TextStyle(color: AppPalette.textMuted),
+                    prefixText: '@',
+                    prefixStyle:
+                        const TextStyle(color: AppPalette.textMuted),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: AppPalette.cardStroke),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(color: AppPalette.accent),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Role',
+                  style: TextStyle(
+                    color: AppPalette.textMuted,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: roles.map((r) {
+                    final selected = r == selectedRole;
+                    return ChoiceChip(
+                      label: Text(_formatRole(r)),
+                      selected: selected,
+                      selectedColor: AppPalette.accent,
+                      backgroundColor: AppPalette.cardOverlay,
+                      labelStyle: TextStyle(
+                        color: selected
+                            ? AppPalette.bgPrimary
+                            : AppPalette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      onSelected: (_) {
+                        setSheetState(() => selectedRole = r);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            final newUsername =
+                                usernameController.text.trim();
+                            final newDisplay =
+                                displayNameController.text.trim();
+                            if (newUsername.isEmpty ||
+                                newDisplay.isEmpty) return;
+
+                            setSheetState(() => isSaving = true);
+
+                            try {
+                              await ProfileService.updateProfile(
+                                userId: profile.id,
+                                username: newUsername,
+                                displayName: newDisplay,
+                                role: selectedRole,
+                              );
+                              await auth.refreshProfile();
+                              if (ctx.mounted) Navigator.pop(ctx);
+                            } catch (e) {
+                              if (ctx.mounted) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Failed to update: $e'),
+                                  ),
+                                );
+                              }
+                            } finally {
+                              if (ctx.mounted) {
+                                setSheetState(() => isSaving = false);
+                              }
+                            }
+                          },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppPalette.accent,
+                      foregroundColor: AppPalette.bgPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppPalette.bgPrimary,
+                            ),
+                          )
+                        : const Text(
+                            'Save Changes',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }
 
 class _ProfileHeaderCard extends StatelessWidget {
@@ -219,7 +404,7 @@ class _ProfileHeaderCard extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: () {},
+                onPressed: () => _showEditProfileSheet(context),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppPalette.cardStroke),
                   foregroundColor: AppPalette.textPrimary,
