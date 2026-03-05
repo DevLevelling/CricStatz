@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 import 'package:cricstatz/config/routes.dart';
 import 'package:cricstatz/config/assets.dart';
 import 'package:cricstatz/config/palette.dart';
@@ -22,11 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Match? _liveMatch;
   Map<String, dynamic>? _liveStats;
   bool _isLoadingLive = true;
+  StreamSubscription<Match?>? _liveMatchSub;
+  StreamSubscription<Map<String, dynamic>?>? _liveScoreSub;
 
   @override
   void initState() {
     super.initState();
     _fetchLiveMatch();
+    _subscribeToLiveSession();
   }
 
   Future<void> _fetchLiveMatch() async {
@@ -47,6 +51,57 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       if (mounted) setState(() => _isLoadingLive = false);
     }
+  }
+
+  void _subscribeToLiveSession() {
+    _liveMatchSub?.cancel();
+    _liveMatchSub = MatchService.streamLatestLiveMatch().listen((match) {
+      if (!mounted) return;
+
+      final previousMatchId = _liveMatch?.id;
+      setState(() {
+        _liveMatch = match;
+        if (match == null) {
+          _liveStats = null;
+          _isLoadingLive = false;
+        }
+      });
+
+      if (match == null) {
+        _liveScoreSub?.cancel();
+        return;
+      }
+
+      if (previousMatchId != match.id) {
+        _subscribeToLiveScore(match.id);
+      }
+    }, onError: (_) {
+      if (mounted) {
+        setState(() => _isLoadingLive = false);
+      }
+    });
+  }
+
+  void _subscribeToLiveScore(String matchId) {
+    _liveScoreSub?.cancel();
+    _liveScoreSub = MatchService.streamLiveScore(matchId).listen((stats) {
+      if (!mounted) return;
+      setState(() {
+        _liveStats = stats;
+        _isLoadingLive = false;
+      });
+    }, onError: (_) {
+      if (mounted) {
+        setState(() => _isLoadingLive = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _liveScoreSub?.cancel();
+    _liveMatchSub?.cancel();
+    super.dispose();
   }
 
   @override

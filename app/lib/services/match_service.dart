@@ -1,8 +1,25 @@
 import 'package:cricstatz/models/match.dart';
 import 'package:cricstatz/models/match_stats.dart';
+import 'package:cricstatz/models/player.dart';
 import 'package:cricstatz/services/supabase_service.dart';
 
 class MatchService {
+  static Map<String, dynamic> _parseLiveScoreRow(Map<String, dynamic> data) {
+    final summaryJson = data['summary'] as Map<String, dynamic>;
+    final partnershipJson = data['partnership'] as Map<String, dynamic>;
+    final batsmenJson = data['batsmen'] as List<dynamic>;
+    final bowlerJson = data['bowler'] as Map<String, dynamic>;
+
+    return {
+      'summary': ScoreSummary.fromJson(summaryJson),
+      'partnership': Partnership.fromJson(partnershipJson),
+      'batsmen': batsmenJson
+          .map((e) => BatsmanScore.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      'bowler': BowlerScore.fromJson(bowlerJson),
+    };
+  }
+
   static Future<Match> createMatch({
     required String teamAId,
     required String teamBId,
@@ -55,19 +72,19 @@ class MatchService {
         .select()
         .eq('match_id', matchId)
         .single();
+    return _parseLiveScoreRow(data);
+  }
 
-    final summaryJson = data['summary'] as Map<String, dynamic>;
-    final partnershipJson = data['partnership'] as Map<String, dynamic>;
-    final batsmenJson = data['batsmen'] as List<dynamic>;
-    final bowlerJson = data['bowler'] as Map<String, dynamic>;
-
-    return {
-      'summary': ScoreSummary.fromJson(summaryJson),
-      'partnership': Partnership.fromJson(partnershipJson),
-      'batsmen':
-          batsmenJson.map((e) => BatsmanScore.fromJson(e as Map<String, dynamic>)).toList(),
-      'bowler': BowlerScore.fromJson(bowlerJson),
-    };
+  static Stream<Map<String, dynamic>?> streamLiveScore(String matchId) {
+    return SupabaseService.client
+        .from('live_scores')
+        .stream(primaryKey: ['match_id'])
+        .eq('match_id', matchId)
+        .map((rows) {
+      if (rows.isEmpty) return null;
+      final row = rows.first;
+      return _parseLiveScoreRow(row);
+    });
   }
 
   static Future<List<Map<String, dynamic>>> getScoreboard(String matchId) async {
@@ -139,16 +156,59 @@ class MatchService {
     };
   }
   static Future<Match?> getLatestLiveMatch() async {
-    final data = await SupabaseService.client
+    try {
+      final data = await SupabaseService.client
+          .from('matches')
+          .select()
+          .eq('status', 'live')
+          .order('updated_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+      if (data != null) return Match.fromJson(data);
+    } catch (_) {
+      // Fallback when updated_at does not exist in schema.
+    }
+
+    final fallback = await SupabaseService.client
         .from('matches')
         .select()
         .eq('status', 'live')
         .order('match_date', ascending: false)
         .limit(1)
         .maybeSingle();
-    
-    if (data == null) return null;
-    return Match.fromJson(data);
+
+    if (fallback == null) return null;
+    return Match.fromJson(fallback);
+  }
+
+  static DateTime _parseRowDate(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value == null) return DateTime.fromMillisecondsSinceEpoch(0);
+    return DateTime.tryParse(value.toString()) ??
+        DateTime.fromMillisecondsSinceEpoch(0);
+  }
+
+  static Stream<Match?> streamLatestLiveMatch() {
+    return SupabaseService.client
+        .from('matches')
+        .stream(primaryKey: ['id'])
+        .eq('status', 'live')
+        .map((rows) {
+      if (rows.isEmpty) return null;
+
+      final sortedRows = List<Map<String, dynamic>>.from(rows)
+        ..sort((a, b) {
+          final aUpdated = _parseRowDate(a, 'updated_at');
+          final bUpdated = _parseRowDate(b, 'updated_at');
+          final byUpdated = bUpdated.compareTo(aUpdated);
+          if (byUpdated != 0) return byUpdated;
+          final aMatchDate = _parseRowDate(a, 'match_date');
+          final bMatchDate = _parseRowDate(b, 'match_date');
+          return bMatchDate.compareTo(aMatchDate);
+        });
+
+      return Match.fromJson(sortedRows.first);
+    });
   }
 
   static Future<void> updateMatchToss(String matchId, String winnerId, String decision) async {
@@ -160,6 +220,101 @@ class MatchService {
           'status': 'live',
         })
         .eq('id', matchId);
+  }
+
+  static Future<void> updateMatchSquads({
+    required String matchId,
+    required List<String> teamASquad,
+    required List<String> teamBSquad,
+  }) async {
+    final response = await SupabaseService.client
+        .from('matches')
+        .update({
+          'team_a_squad': teamASquad,
+          'team_b_squad': teamBSquad,
+        })
+        .eq('id', matchId)
+        .select('id, team_a_squad, team_b_squad')
+        .maybeSingle();
+
+    if (response == null) {
+      throw Exception('Squad update returned no row for match $matchId');
+    }
+
+    final savedA = (response['team_a_squad'] as List<dynamic>? ?? <dynamic>[]).length;
+    final savedB = (response['team_b_squad'] as List<dynamic>? ?? <dynamic>[]).length;
+    if (savedA != teamASquad.length || savedB != teamBSquad.length) {
+      throw Exception(
+        'Squad update mismatch. expected: A=${teamASquad.length}, B=${teamBSquad.length} '
+        'saved: A=$savedA, B=$savedB',
+      );
+    }
+  }
+
+  static Future<Map<String, List<Player>>> getMatchSquadPlayers(String matchId) async {
+    final data = await SupabaseService.client
+        .from('matches')
+        .select('team_a_squad, team_b_squad')
+        .eq('id', matchId)
+        .maybeSingle();
+
+    if (data == null) {
+      return {
+        'teamA': <Player>[],
+        'teamB': <Player>[],
+      };
+    }
+
+    final teamAIds = (data['team_a_squad'] as List<dynamic>? ?? <dynamic>[])
+        .map((e) => e.toString())
+        .where((id) => id.isNotEmpty)
+        .toList();
+    final teamBIds = (data['team_b_squad'] as List<dynamic>? ?? <dynamic>[])
+        .map((e) => e.toString())
+        .where((id) => id.isNotEmpty)
+        .toList();
+
+    final allIds = <String>{...teamAIds, ...teamBIds}.toList();
+    if (allIds.isEmpty) {
+      return {
+        'teamA': <Player>[],
+        'teamB': <Player>[],
+      };
+    }
+
+    final profiles = await SupabaseService.client
+        .from('profiles')
+        .select('id, display_name, username, role')
+        .inFilter('id', allIds);
+
+    final profileMap = <String, Map<String, dynamic>>{};
+    for (final raw in (profiles as List)) {
+      final row = raw as Map<String, dynamic>;
+      profileMap[row['id'].toString()] = row;
+    }
+
+    List<Player> mapToPlayers(List<String> ids) {
+      return ids.map((id) {
+        final profile = profileMap[id];
+        final displayName = (profile?['display_name'] ?? '').toString().trim();
+        final username = (profile?['username'] ?? '').toString().trim();
+        final role = (profile?['role'] ?? 'Player').toString();
+        final name = displayName.isNotEmpty
+            ? displayName
+            : (username.isNotEmpty ? username : 'Unknown Player');
+        return Player(
+          id: id,
+          teamId: '',
+          name: name,
+          role: role,
+        );
+      }).toList();
+    }
+
+    return {
+      'teamA': mapToPlayers(teamAIds),
+      'teamB': mapToPlayers(teamBIds),
+    };
   }
 
   static Future<void> completeMatch(String matchId) async {

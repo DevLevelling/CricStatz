@@ -19,11 +19,17 @@ class Player {
       };
 
   factory Player.fromJson(Map<String, dynamic> json) {
+    final teamId = (json['team_id'] ?? '').toString();
+    final name = (json['name'] ?? '').toString().trim();
+    final fallbackId = teamId.isNotEmpty
+        ? '${teamId}_${name.isNotEmpty ? name : 'player'}'
+        : (name.isNotEmpty ? name : 'player');
+
     return Player(
-      id: json['id'] as String,
-      teamId: json['team_id'] as String,
-      name: json['name'] as String,
-      role: json['role'] as String,
+      id: (json['id'] ?? fallbackId).toString(),
+      teamId: teamId,
+      name: name.isNotEmpty ? name : 'Unknown Player',
+      role: (json['role'] ?? 'Player').toString(),
     );
   }
 }

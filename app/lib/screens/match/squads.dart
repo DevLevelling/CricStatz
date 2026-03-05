@@ -2,6 +2,7 @@ import 'package:cricstatz/config/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cricstatz/services/profile_service.dart';
+import 'package:cricstatz/services/match_service.dart';
 import 'scoringsetup.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -131,12 +132,69 @@ class _SquadsScreenState extends State<SquadsScreen>
     super.dispose();
   }
 
-  void _onSave() {
+  Future<void> _onSave() async {
     HapticFeedback.mediumImpact();
+
+    final selectedTeamAIds = teamA
+        .where((p) => p.isSelected)
+        .map((p) => p.id)
+        .toList();
+    final selectedTeamBIds = teamB
+        .where((p) => p.isSelected)
+        .map((p) => p.id)
+        .toList();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: AppPalette.accent),
+      ),
+    );
+
+    try {
+      final match = await MatchService.createMatch(
+        teamAId: widget.teamAName,
+        teamBId: widget.teamBName,
+        venue: widget.venue,
+        matchFormat: widget.format,
+        matchDate: widget.date,
+        oversLimit: widget.overs,
+      );
+
+      await MatchService.updateMatchSquads(
+        matchId: match.id,
+        teamASquad: selectedTeamAIds,
+        teamBSquad: selectedTeamBIds,
+      );
+      debugPrint(
+        '✅ Squads saved for match ${match.id}: '
+        'teamA=${selectedTeamAIds.length}, teamB=${selectedTeamBIds.length}',
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save squads: $e')),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Squads saved: A=${selectedTeamAIds.length}, B=${selectedTeamBIds.length}',
+        ),
+      ),
+    );
+
     Navigator.push(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => ScoringSetupScreen(
+          matchAlreadyCreated: true,
           teamAName: widget.teamAName,
           teamBName: widget.teamBName,
           venue: widget.venue,
@@ -690,8 +748,8 @@ class _BottomCtaState extends State<_BottomCta> {
     final selA = widget.teamA.where((p) => p.isSelected).length;
     final selB = widget.teamB.where((p) => p.isSelected).length;
     // For testing: allow progression with at least 1 player selected per team.
-    const int _minPlayersPerTeam = 1;
-    final isValid = selA >= _minPlayersPerTeam && selB >= _minPlayersPerTeam;
+    const int minPlayersPerTeam = 1;
+    final isValid = selA >= minPlayersPerTeam && selB >= minPlayersPerTeam;
 
     return Container(
       decoration: const BoxDecoration(
@@ -707,11 +765,11 @@ class _BottomCtaState extends State<_BottomCta> {
             children: [
               Container(width: 6, height: 6, decoration: const BoxDecoration(color: _Tokens.teamA, shape: BoxShape.circle)),
               const SizedBox(width: 6),
-              Text('$selA/11', style: TextStyle(color: selA >= _minPlayersPerTeam ? _Tokens.teamA : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('$selA/11', style: TextStyle(color: selA >= minPlayersPerTeam ? _Tokens.teamA : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
               const SizedBox(width: 16),
               Container(width: 6, height: 6, decoration: const BoxDecoration(color: _Tokens.teamB, shape: BoxShape.circle)),
               const SizedBox(width: 6),
-              Text('$selB/11', style: TextStyle(color: selB >= _minPlayersPerTeam ? _Tokens.teamB : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('$selB/11', style: TextStyle(color: selB >= minPlayersPerTeam ? _Tokens.teamB : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
             ],
           ),
           const SizedBox(height: 12),
