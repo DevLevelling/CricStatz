@@ -1,0 +1,1103 @@
+/* =========================================================
+   CricStatz – Global Design System
+   Theme: Dark/Red  |  Font: Space Grotesk
+   ========================================================= */
+
+:root {
+    --bg: #000000;
+    --bg-card: rgba(15, 15, 25, 0.45);
+    --bg-glass: rgba(255, 255, 255, 0.03);
+    --accent: #ae1921;
+    --accent-light: #e11d48;
+    --accent-glow: rgba(174, 25, 33, 0.35);
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(255, 255, 255, 0.12);
+    --radius: 20px;
+    --glass-blur: blur(20px);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+    overflow-y: scroll;
+}
+
+body {
+    font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+/* ── Scroll-snap sections ───────────────────────────────── */
+
+.section {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    position: relative;
+}
+
+/* ── Navbar ──────────────────────────────────────────────── */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.3s;
+}
+
+.navbar-logo {
+    height: 32px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.navbar-logo:hover {
+    opacity: 1;
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-light);
+    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+    width: 100%;
+}
+
+/* ── HERO SECTION ────────────────────────────────────────── */
+
+.hero {
+    background:
+        radial-gradient(ellipse at center, rgba(220, 30, 40, 0.12) 0%, rgba(174, 25, 33, 0.04) 40%, transparent 65%),
+        var(--bg);
+    text-align: center;
+    gap: 32px;
+    overflow: hidden;
+}
+
+.hero-logo {
+    width: min(600px, 80vw);
+    filter:
+        brightness(1.2) saturate(1.5) drop-shadow(0 0 40px rgba(255, 30, 40, 0.7)) drop-shadow(0 0 80px rgba(220, 20, 30, 0.4)) drop-shadow(0 0 150px rgba(174, 25, 33, 0.25));
+    animation: logoFloat 4s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+.hero-tagline {
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    color: var(--text-muted);
+    max-width: 500px;
+    line-height: 1.7;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    animation: scrollBounce 2s ease-in-out infinite;
+}
+
+.scroll-indicator svg {
+    opacity: 0.5;
+}
+
+@keyframes scrollBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translateY(8px);
+        opacity: 1;
+    }
+}
+
+/* ── ABOUT SECTION ───────────────────────────────────────── */
+
+.about {
+    background:
+        linear-gradient(180deg, var(--bg) 0%, rgba(10, 0, 2, 1) 100%);
+}
+
+.about-container {
+    max-width: 800px;
+    text-align: center;
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glow);
+    border-radius: var(--radius);
+    padding: 60px 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 20px;
+}
+
+.section-label::before,
+.section-label::after {
+    content: "";
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+}
+
+.section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 24px;
+}
+
+.section-title span {
+    background: linear-gradient(135deg, #ff4d4d, var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.about-text {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    max-width: 600px;
+    margin: 0 auto 40px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    text-align: center;
+    background: var(--bg-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 28px;
+    transition: transform 0.3s ease, border-color 0.3s;
+}
+
+.stat:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-glow);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-light);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* ── FEATURES SECTION ────────────────────────────────────── */
+
+.features-section {
+    background: var(--bg);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    width: 100%;
+    margin-top: 48px;
+}
+
+.feature-card {
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glow);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.3s,
+        box-shadow 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(174, 25, 33, 0.4);
+    box-shadow:
+        0 20px 60px rgba(174, 25, 33, 0.15),
+        0 0 30px rgba(174, 25, 33, 0.05);
+}
+
+.feature-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(174, 25, 33, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(174, 25, 33, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: var(--accent-light);
+}
+
+.feature-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.feature-card-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* ── DOWNLOAD SECTION ────────────────────────────────────── */
+
+.download-section {
+    background:
+        radial-gradient(ellipse at center bottom, rgba(174, 25, 33, 0.1) 0%, transparent 60%),
+        var(--bg);
+    text-align: center;
+    gap: 28px;
+}
+
+.btn-download {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 40px;
+    border: none;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow:
+        0 8px 30px rgba(174, 25, 33, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 10;
+}
+
+.btn-download:hover {
+    transform: scale(1.05);
+    box-shadow:
+        0 12px 40px rgba(174, 25, 33, 0.55),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.btn-download:active {
+    transform: scale(0.97);
+}
+
+.download-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 400px;
+}
+
+.download-note code {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── CONTACT SECTION ─────────────────────────────────────── */
+
+.contact-section {
+    background:
+        radial-gradient(ellipse at center top, rgba(174, 25, 33, 0.05) 0%, transparent 70%),
+        var(--bg);
+}
+
+.contact-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    max-width: 1000px;
+    width: 100%;
+    margin-top: 40px;
+    background: var(--bg-card);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-glow);
+    border-radius: var(--radius);
+    padding: 48px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.contact-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.contact-info h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+
+.contact-info p {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.contact-method:hover {
+    background: rgba(174, 25, 33, 0.1);
+    border-color: rgba(174, 25, 33, 0.3);
+    color: var(--accent-light);
+}
+
+.contact-method svg {
+    color: var(--accent-light);
+}
+
+.contact-form {
+    flex: 1.2;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-subtle);
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(174, 25, 33, 0.2);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 8px;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(174, 25, 33, 0.4);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+
+.footer {
+    min-height: auto;
+    padding: 40px 24px;
+    scroll-snap-align: end;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+}
+
+.footer-inner {
+    max-width: 960px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-logo {
+    height: 28px;
+    opacity: 0.6;
+}
+
+.footer-text {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+}
+
+.footer-links a {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--text);
+}
+
+/* ── SCROLL-REVEAL ANIMATION CLASSES ─────────────────────── */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Stagger children */
+.stagger>*:nth-child(1) {
+    transition-delay: 0s;
+}
+
+.stagger>*:nth-child(2) {
+    transition-delay: 0.1s;
+}
+
+.stagger>*:nth-child(3) {
+    transition-delay: 0.2s;
+}
+
+.stagger>*:nth-child(4) {
+    transition-delay: 0.3s;
+}
+
+.stagger>*:nth-child(5) {
+    transition-delay: 0.4s;
+}
+
+/* ── CRICKET BALL ANIMATION OVERLAY ──────────────────────── */
+
+.cricket-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+}
+
+.cricket-overlay.active {
+    display: block;
+}
+
+/* Dark semi-transparent backdrop */
+.cricket-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s ease;
+}
+
+.cricket-overlay.active .cricket-backdrop {
+    animation: backdropIn 0.3s ease-out forwards;
+}
+
+@keyframes backdropIn {
+    0% {
+        background: rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        background: rgba(0, 0, 0, 0.75);
+    }
+}
+
+/* Batsman icon — enters from left, winds up, then swings */
+.cricket-batsman {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-250%) scale(0.7);
+    opacity: 0;
+    z-index: 2;
+    filter: drop-shadow(0 0 40px rgba(174, 25, 33, 0.7));
+    transform-origin: center bottom;
+}
+
+/* Phase 1: Batsman enters and takes stance */
+.cricket-overlay.active .cricket-batsman {
+    animation: batsmanEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Phase 2: Bat swing — override with the full sequence when .swung is added */
+.cricket-overlay.active.swung .cricket-batsman {
+    animation: batsmanSwingFull 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes batsmanEnter {
+    0% {
+        transform: translateX(-250%) scale(0.7) rotate(-10deg);
+        opacity: 0;
+    }
+
+    70% {
+        transform: translateX(-55%) scale(1.05) rotate(2deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-55%) scale(1) rotate(-5deg);
+        opacity: 1;
+    }
+}
+
+/* Full sequence: already in position → wind up → swing → follow through */
+@keyframes batsmanSwingFull {
+    0% {
+        transform: translateX(-55%) scale(1) rotate(-5deg);
+        opacity: 1;
+    }
+
+    /* Wind up — pull bat back */
+    30% {
+        transform: translateX(-55%) scale(1.05) rotate(-20deg);
+        opacity: 1;
+    }
+
+    /* Swing — bat comes forward powerfully */
+    55% {
+        transform: translateX(-55%) scale(1.12) rotate(25deg);
+        opacity: 1;
+    }
+
+    /* Follow through */
+    80% {
+        transform: translateX(-55%) scale(1.05) rotate(15deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateX(-55%) scale(1) rotate(12deg);
+        opacity: 1;
+    }
+}
+
+/* The cricket ball — starts near batsman, flies at the user */
+.cricket-ball {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    bottom: 40%;
+    left: 50%;
+    transform: scale(0);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff4444, #dd0000 50%, #8b0000);
+    box-shadow:
+        0 0 20px rgba(255, 50, 50, 0.9),
+        0 0 60px rgba(255, 30, 30, 0.4),
+        inset -2px -2px 4px rgba(0, 0, 0, 0.4),
+        inset 2px 2px 4px rgba(255, 180, 180, 0.3);
+    z-index: 4;
+    opacity: 0;
+}
+
+/* White seam line on the ball */
+.cricket-ball::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    transform: translateY(-50%) rotate(-25deg);
+}
+
+.cricket-overlay.active .cricket-ball {
+    animation: ballFlyToUser 0.7s cubic-bezier(0.1, 0, 0.9, 1) 0.6s forwards;
+}
+
+@keyframes ballFlyToUser {
+    0% {
+        transform: scale(0.3);
+        opacity: 1;
+        bottom: 40%;
+        left: 50%;
+    }
+
+    25% {
+        transform: scale(0.7) rotate(180deg);
+        opacity: 1;
+        bottom: 52%;
+        left: 52%;
+    }
+
+    60% {
+        transform: scale(2.5) rotate(450deg);
+        opacity: 1;
+        bottom: 50%;
+        left: 50%;
+    }
+
+    85% {
+        transform: scale(12) rotate(650deg);
+        opacity: 1;
+        bottom: 50%;
+        left: 50%;
+    }
+
+    100% {
+        transform: scale(80) rotate(720deg);
+        opacity: 1;
+        bottom: 50%;
+        left: 50%;
+    }
+}
+
+/* White flash on impact */
+.ball-impact {
+    position: absolute;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    z-index: 5;
+}
+
+.cricket-overlay.impact .ball-impact {
+    animation: impactWhiteFlash 0.3s ease-out forwards;
+}
+
+@keyframes impactWhiteFlash {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+/* ── SCREEN CRACK SVG OVERLAY ────────────────────────────── */
+
+.screen-crack {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cricket-overlay.impact .screen-crack {
+    opacity: 1;
+}
+
+/* Crack lines — radial from center */
+.crack-line {
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 0.3;
+    fill: none;
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
+}
+
+.crack-branch {
+    stroke-width: 0.2;
+    stroke: rgba(255, 255, 255, 0.6);
+}
+
+/* Animate each crack line with staggered delays */
+.cricket-overlay.impact .crack-line {
+    animation: crackDraw 0.3s ease-out forwards;
+}
+
+.cricket-overlay.impact .cl-1 {
+    animation-delay: 0.00s;
+}
+
+.cricket-overlay.impact .cl-2 {
+    animation-delay: 0.02s;
+}
+
+.cricket-overlay.impact .cl-3 {
+    animation-delay: 0.04s;
+}
+
+.cricket-overlay.impact .cl-4 {
+    animation-delay: 0.06s;
+}
+
+.cricket-overlay.impact .cl-5 {
+    animation-delay: 0.08s;
+}
+
+.cricket-overlay.impact .cl-6 {
+    animation-delay: 0.03s;
+}
+
+.cricket-overlay.impact .cl-7 {
+    animation-delay: 0.05s;
+}
+
+.cricket-overlay.impact .cl-8 {
+    animation-delay: 0.01s;
+}
+
+.cricket-overlay.impact .cl-9 {
+    animation-delay: 0.07s;
+}
+
+.cricket-overlay.impact .cl-10 {
+    animation-delay: 0.04s;
+}
+
+/* Branch cracks animate slightly later */
+.cricket-overlay.impact .cb-1 {
+    animation-delay: 0.10s;
+}
+
+.cricket-overlay.impact .cb-2 {
+    animation-delay: 0.12s;
+}
+
+.cricket-overlay.impact .cb-3 {
+    animation-delay: 0.14s;
+}
+
+.cricket-overlay.impact .cb-4 {
+    animation-delay: 0.16s;
+}
+
+.cricket-overlay.impact .cb-5 {
+    animation-delay: 0.18s;
+}
+
+.cricket-overlay.impact .cb-6 {
+    animation-delay: 0.11s;
+}
+
+.cricket-overlay.impact .cb-7 {
+    animation-delay: 0.13s;
+}
+
+.cricket-overlay.impact .cb-8 {
+    animation-delay: 0.15s;
+}
+
+.cricket-overlay.impact .cb-9 {
+    animation-delay: 0.17s;
+}
+
+.cricket-overlay.impact .cb-10 {
+    animation-delay: 0.19s;
+}
+
+@keyframes crackDraw {
+    0% {
+        stroke-dashoffset: 100;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Impact center point */
+.crack-center {
+    opacity: 0;
+}
+
+.cricket-overlay.impact .crack-center {
+    animation: centerFlash 0.2s ease-out forwards;
+}
+
+@keyframes centerFlash {
+    0% {
+        opacity: 0;
+        r: 0;
+    }
+
+    50% {
+        opacity: 1;
+        r: 4;
+    }
+
+    100% {
+        opacity: 0.8;
+        r: 2;
+    }
+}
+
+/* Concentric crack rings */
+.crack-ring {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 0.2;
+    fill: none;
+    opacity: 0;
+}
+
+.cricket-overlay.impact .ring-1 {
+    animation: ringReveal 0.25s ease-out 0.05s forwards;
+}
+
+.cricket-overlay.impact .ring-2 {
+    animation: ringReveal 0.3s ease-out 0.1s forwards;
+}
+
+@keyframes ringReveal {
+    0% {
+        opacity: 0;
+        stroke-width: 0;
+    }
+
+    50% {
+        opacity: 0.6;
+        stroke-width: 0.4;
+    }
+
+    100% {
+        opacity: 0.3;
+        stroke-width: 0.15;
+    }
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 14px 20px;
+    }
+
+    .nav-links {
+        gap: 20px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+    }
+
+    .section {
+        padding: 60px 20px;
+    }
+
+    .hero-logo {
+        width: min(400px, 85vw);
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+
+    .stat-row {
+        gap: 32px;
+    }
+
+    .footer-inner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cricket-batsman {
+        width: 160px;
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        display: none;
+    }
+
+    .btn-download {
+        padding: 16px 32px;
+        font-size: 16px;
+    }
+
+    .cricket-batsman {
+        width: 120px;
+        height: 120px;
+    }
+}

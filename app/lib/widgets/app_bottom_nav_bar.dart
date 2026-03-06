@@ -22,15 +22,17 @@ class AppBottomNavBar extends StatelessWidget {
           case 0:
             Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (r) => false);
             break;
-          case 1:
-          case 2:
-          case 3:
           case 4:
-            if (index == 4) {
-              Navigator.pushNamed(context, AppRoutes.profile);
-            } else {
-              Navigator.pushNamed(context, AppRoutes.toss);
-            }
+            Navigator.pushNamed(context, AppRoutes.profile);
+            break;
+          default:
+            // Feed, Search, Chats — not yet implemented
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Coming soon!'),
+                duration: Duration(seconds: 1),
+              ),
+            );
             break;
         }
       },

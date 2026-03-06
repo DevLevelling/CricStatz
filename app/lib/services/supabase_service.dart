@@ -1,3 +1,4 @@
+import 'package:cricstatz/utils/app_logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
@@ -28,6 +29,7 @@ class SupabaseService {
       _maybeClient?.auth.onAuthStateChange;
 
   static Future<void> signInWithGoogle() async {
+    AppLogger.info('Initiating Google sign-in', tag: 'Supabase');
     await client.auth.signInWithOAuth(
       OAuthProvider.google,
       redirectTo: 'com.cricstatz.cricstatz://login-callback',
@@ -35,7 +37,22 @@ class SupabaseService {
     );
   }
 
+  static Future<AuthResponse> signInWithEmail(String email, String password) async {
+    return await client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  }
+
+  static Future<AuthResponse> signUpWithEmail(String email, String password) async {
+    return await client.auth.signUp(
+      email: email,
+      password: password,
+    );
+  }
+
   static Future<void> signOut() async {
+    AppLogger.info('Signing out', tag: 'Supabase');
     await client.auth.signOut();
   }
 }

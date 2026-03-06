@@ -3,58 +3,71 @@ import 'dart:ui';
 import 'package:cricstatz/config/assets.dart';
 import 'package:cricstatz/config/palette.dart';
 import 'package:cricstatz/config/routes.dart';
+import 'package:cricstatz/models/match.dart';
+import 'package:cricstatz/models/match_stats.dart';
+import 'package:cricstatz/services/match_service.dart';
 import 'package:cricstatz/widgets/app_bottom_nav_bar.dart';
 import 'package:cricstatz/widgets/app_header.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class ResultsScreen extends StatelessWidget {
+class ResultsScreen extends StatefulWidget {
   const ResultsScreen({super.key});
 
-  static const _sections = [
-    _ResultSection(
-      date: 'September 24, 2023',
-      matches: [
-        _ResultData(
-          format: 'ODI Match',
-          status: 'Final Score',
-          teamA: 'IND',
-          teamB: 'AUS',
-          teamAFlag: AppAssets.flagInd,
-          teamBFlag: AppAssets.flagAus,
-          scoreA: '352/7',
-          scoreB: '254',
-          outcome: 'India won by 98 runs',
-        ),
-      ],
-    ),
-    _ResultSection(
-      date: 'September 22, 2023',
-      matches: [
-        _ResultData(
-          format: 'T20 International',
-          status: 'Final Score',
-          teamA: 'ENG',
-          teamB: 'RSA',
-          teamAFlag: AppAssets.flagEng,
-          teamBFlag: AppAssets.flagRsa,
-          scoreA: '188/4',
-          scoreB: '192/3',
-          outcome: 'RSA won by 7 wickets',
-        ),
-        _ResultData(
-          format: 'Test Match',
-          status: 'Day 5 - Stumps',
-          teamA: 'NZL',
-          teamB: 'PAK',
-          teamAFlag: AppAssets.flagNzl,
-          teamBFlag: AppAssets.flagPak,
-          scoreA: '245 & 312',
-          scoreB: '298 & 150/2',
-          outcome: 'Match Drawn',
-        ),
-      ],
-    ),
-  ];
+  @override
+  State<ResultsScreen> createState() => _ResultsScreenState();
+}
+
+class _ResultsScreenState extends State<ResultsScreen> {
+  late Future<List<_ResultSection>> _sectionsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _sectionsFuture = _loadSections();
+  }
+
+  Future<List<_ResultSection>> _loadSections() async {
+    final matches = await MatchService.getCompletedMatches();
+    final resultEntries = await Future.wait(
+      matches.map((match) async {
+        try {
+          final stats = await MatchService.getLiveScore(match.id);
+          final summary = stats['summary'] as ScoreSummary?;
+          return _ResultEntry(
+            match: match,
+            summary: summary,
+          );
+        } catch (_) {
+          return _ResultEntry(
+            match: match,
+            summary: null,
+          );
+        }
+      }),
+    );
+
+    final grouped = <String, List<_ResultData>>{};
+    for (final entry in resultEntries) {
+      final date = entry.match.matchDate ?? DateTime.now();
+      final key = DateFormat('MMMM d, y').format(date);
+      grouped.putIfAbsent(key, () => <_ResultData>[]).add(
+            _ResultData.fromEntry(entry),
+          );
+    }
+
+    final sections = grouped.entries
+        .map((entry) => _ResultSection(date: entry.key, matches: entry.value))
+        .toList();
+
+    sections.sort((a, b) {
+      final aDate = DateFormat('MMMM d, y').parse(a.date);
+      final bDate = DateFormat('MMMM d, y').parse(b.date);
+      return bDate.compareTo(aDate);
+    });
+
+    return sections;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,27 +80,63 @@ class ResultsScreen extends StatelessWidget {
             children: [
               _buildHeader(context),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                  children: [
-                    for (final section in _sections) ...[
-                      Text(
-                        section.date.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppPalette.textMuted,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              letterSpacing: 0.7,
+                child: FutureBuilder<List<_ResultSection>>(
+                  future: _sectionsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppPalette.accent,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load results: ${snapshot.error}',
+                          style: const TextStyle(color: AppPalette.textPrimary),
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }
+
+                    final sections = snapshot.data ?? const <_ResultSection>[];
+                    if (sections.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'No completed matches found.',
+                          style: TextStyle(color: AppPalette.textMuted),
+                        ),
+                      );
+                    }
+
+                    return ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                      children: [
+                        for (final section in sections) ...[
+                          Text(
+                            section.date.toUpperCase(),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppPalette.textMuted,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      letterSpacing: 0.7,
+                                    ),
+                          ),
+                          const SizedBox(height: 16),
+                          ...section.matches.map(
+                            (m) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _ResultCard(data: m),
                             ),
-                      ),
-                      const SizedBox(height: 16),
-                      ...section.matches.map((m) => Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _ResultCard(data: m),
-                          )),
-                      const SizedBox(height: 8),
-                    ],
-                  ],
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
@@ -121,9 +170,12 @@ class ResultsScreen extends StatelessWidget {
                       ),
                       child: IconButton(
                         onPressed: () {},
-                        icon: Image.asset(AppAssets.iconCal,
-                            width: 20, height: 20,
-                            color: AppPalette.textPrimary),
+                        icon: Image.asset(
+                          AppAssets.iconCal,
+                          width: 20,
+                          height: 20,
+                          color: AppPalette.textPrimary,
+                        ),
                         padding: EdgeInsets.zero,
                         style: IconButton.styleFrom(
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -140,9 +192,12 @@ class ResultsScreen extends StatelessWidget {
                       ),
                       child: IconButton(
                         onPressed: () {},
-                        icon: Image.asset(AppAssets.iconFil,
-                            width: 20, height: 20,
-                            color: AppPalette.textPrimary),
+                        icon: Image.asset(
+                          AppAssets.iconFil,
+                          width: 20,
+                          height: 20,
+                          color: AppPalette.textPrimary,
+                        ),
                         padding: EdgeInsets.zero,
                         style: IconButton.styleFrom(
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -152,7 +207,7 @@ class ResultsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              _ResultsQuickTabs(),
+              const _ResultsQuickTabs(),
             ],
           ),
         ),
@@ -162,6 +217,8 @@ class ResultsScreen extends StatelessWidget {
 }
 
 class _ResultsQuickTabs extends StatelessWidget {
+  const _ResultsQuickTabs();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -173,15 +230,22 @@ class _ResultsQuickTabs extends StatelessWidget {
       child: Row(
         children: [
           _TabItem(
-              label: 'Live',
-              isSelected: false,
-              onTap: () => Navigator.pushNamedAndRemoveUntil(
-                  context, AppRoutes.home, (r) => false)),
+            label: 'Live',
+            isSelected: false,
+            onTap: () => Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.home,
+              (r) => false,
+            ),
+          ),
           _TabItem(
-              label: 'Upcoming',
-              isSelected: false,
-              onTap: () =>
-                  Navigator.push(context, AppRoutes.buildUpcomingRoute())),
+            label: 'Upcoming',
+            isSelected: false,
+            onTap: () => Navigator.push(
+              context,
+              AppRoutes.buildUpcomingRoute(),
+            ),
+          ),
           _TabItem(label: 'Results', isSelected: true, onTap: () {}),
           _TabItem(label: "My Matche's", isSelected: false, onTap: () {}),
         ],
@@ -191,8 +255,11 @@ class _ResultsQuickTabs extends StatelessWidget {
 }
 
 class _TabItem extends StatelessWidget {
-  const _TabItem(
-      {required this.label, required this.isSelected, required this.onTap});
+  const _TabItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   final String label;
   final bool isSelected;
@@ -229,12 +296,24 @@ class _TabItem extends StatelessWidget {
 
 class _ResultSection {
   const _ResultSection({required this.date, required this.matches});
+
   final String date;
   final List<_ResultData> matches;
 }
 
+class _ResultEntry {
+  const _ResultEntry({
+    required this.match,
+    required this.summary,
+  });
+
+  final Match match;
+  final ScoreSummary? summary;
+}
+
 class _ResultData {
   const _ResultData({
+    required this.matchId,
     required this.format,
     required this.status,
     required this.teamA,
@@ -245,6 +324,63 @@ class _ResultData {
     required this.scoreB,
     required this.outcome,
   });
+
+  factory _ResultData.fromEntry(_ResultEntry entry) {
+    final match = entry.match;
+    final summary = entry.summary;
+    final teamA = match.teamAId;
+    final teamB = match.teamBId;
+
+    final firstBattingTeam = _resolveFirstBattingTeam(match);
+    final secondBattingTeam = firstBattingTeam == teamA ? teamB : teamA;
+
+    String scoreA = '-';
+    String scoreB = '-';
+    String outcome = 'Match completed';
+
+    if (summary != null) {
+      final secondInningsRuns = int.tryParse(summary.runs) ?? 0;
+      final secondInningsWickets = int.tryParse(summary.wickets) ?? 0;
+      final target = int.tryParse(summary.target ?? '');
+      final firstInningsRuns = target != null && target > 0 ? target - 1 : null;
+      final secondInningsScore = '$secondInningsRuns/$secondInningsWickets';
+
+      if (firstBattingTeam == teamA) {
+        scoreA = firstInningsRuns?.toString() ?? '-';
+        scoreB = secondInningsScore;
+      } else {
+        scoreA = secondInningsScore;
+        scoreB = firstInningsRuns?.toString() ?? '-';
+      }
+
+      if (target != null && target > 0) {
+        if (secondInningsRuns >= target) {
+          final wicketsRemaining = 10 - secondInningsWickets;
+          outcome = '$secondBattingTeam won by $wicketsRemaining wickets';
+        } else {
+          final margin = target - secondInningsRuns - 1;
+          outcome = '$firstBattingTeam won by $margin runs';
+        }
+      } else {
+        outcome = summary.summaryText ?? 'Match completed';
+      }
+    }
+
+    return _ResultData(
+      matchId: match.id,
+      format: match.matchFormat ?? 'Match',
+      status: 'Final Result',
+      teamA: teamA,
+      teamB: teamB,
+      teamAFlag: _flagForTeam(teamA),
+      teamBFlag: _flagForTeam(teamB),
+      scoreA: scoreA,
+      scoreB: scoreB,
+      outcome: outcome,
+    );
+  }
+
+  final String matchId;
   final String format;
   final String status;
   final String teamA;
@@ -254,6 +390,37 @@ class _ResultData {
   final String scoreA;
   final String scoreB;
   final String outcome;
+
+  static String _resolveFirstBattingTeam(Match match) {
+    final teamA = match.teamAId;
+    final teamB = match.teamBId;
+    final tossWinner = match.tossWinner;
+    final decision = match.tossDecision?.toUpperCase();
+
+    if (tossWinner == null || decision == null) {
+      return teamA;
+    }
+
+    if (decision == 'BAT') {
+      return tossWinner;
+    }
+
+    return tossWinner == teamA ? teamB : teamA;
+  }
+
+  static String _flagForTeam(String? teamName) {
+    if (teamName == null) return AppAssets.flagInd;
+    final name = teamName.toUpperCase();
+    if (name.contains('INDIA') || name == 'IND') return AppAssets.flagInd;
+    if (name.contains('AUSTRALIA') || name == 'AUS') return AppAssets.flagAus;
+    if (name.contains('ENGLAND') || name == 'ENG') return AppAssets.flagEng;
+    if (name.contains('SOUTH AFRICA') || name == 'RSA') {
+      return AppAssets.flagRsa;
+    }
+    if (name.contains('NEW ZEALAND') || name == 'NZL') return AppAssets.flagNzl;
+    if (name.contains('PAKISTAN') || name == 'PAK') return AppAssets.flagPak;
+    return AppAssets.flagInd;
+  }
 }
 
 class _ResultCard extends StatelessWidget {
@@ -270,9 +437,10 @@ class _ResultCard extends StatelessWidget {
         border: Border.all(color: AppPalette.cardStroke),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 2,
-              offset: const Offset(0, 1)),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
         ],
       ),
       child: Padding(
@@ -384,8 +552,10 @@ class _ResultCard extends StatelessWidget {
                   ),
                 ),
                 FilledButton(
-                  onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Scoreboard coming soon')),
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.scoreboard,
+                    arguments: data.matchId,
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppPalette.bgSecondary,
@@ -393,7 +563,8 @@ class _ResultCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: Text(
                     'View Scorecard',
@@ -423,15 +594,15 @@ class _ResultTeamBadge extends StatelessWidget {
     return Container(
       width: 48,
       height: 48,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E293B),
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
       child: Image.asset(
         assetPath,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Center(
+        errorBuilder: (_, __, ___) => const Center(
           child: Icon(Icons.flag, color: AppPalette.textMuted, size: 24),
         ),
       ),

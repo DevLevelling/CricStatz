@@ -19,6 +19,7 @@ class _Tokens {
 // SCREEN
 // ─────────────────────────────────────────────────────────────────────────────
 class ScoringSetupScreen extends StatefulWidget {
+  final bool matchAlreadyCreated;
   final String teamAName;
   final String teamBName;
   final String? venue;
@@ -30,6 +31,7 @@ class ScoringSetupScreen extends StatefulWidget {
 
   const ScoringSetupScreen({
     super.key,
+    this.matchAlreadyCreated = false,
     required this.teamAName,
     required this.teamBName,
     this.venue,
@@ -114,24 +116,24 @@ class _ScoringSetupScreenState extends State<ScoringSetupScreen> with SingleTick
       ),
     );
 
-    try {
-      await MatchService.createMatch(
-        teamAId: widget.teamAName,
-        teamBId: widget.teamBName,
-        venue: widget.venue,
-        matchFormat: widget.format,
-        matchDate: widget.date,
-        oversLimit: widget.overs,
-        teamASquad: widget.teamASquadIds,
-        teamBSquad: widget.teamBSquadIds,
-      );
-    } catch (e) {
-      if (!mounted) return;
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to create match: $e'), backgroundColor: Colors.red),
-      );
-      return;
+    if (!widget.matchAlreadyCreated) {
+      try {
+        await MatchService.createMatch(
+          teamAId: widget.teamAName,
+          teamBId: widget.teamBName,
+          venue: widget.venue,
+          matchFormat: widget.format,
+          matchDate: widget.date,
+          oversLimit: widget.overs,
+        );
+      } catch (e) {
+        if (!mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create match: $e'), backgroundColor: Colors.red),
+        );
+        return;
+      }
     }
     
     if (!mounted) return;
@@ -150,7 +152,7 @@ class _ScoringSetupScreenState extends State<ScoringSetupScreen> with SingleTick
             Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 18),
             SizedBox(width: 10),
             Text(
-              'Match created in database!',
+              'Match setup saved!',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ],
@@ -521,7 +523,7 @@ class _ToggleCard extends StatelessWidget {
               HapticFeedback.selectionClick();
               onChanged(v);
             },
-            activeColor: AppPalette.accent,
+            activeThumbColor: AppPalette.accent,
             activeTrackColor: AppPalette.accent.withValues(alpha: 0.2),
             inactiveThumbColor: _Tokens.muted,
             inactiveTrackColor: _Tokens.surface3,

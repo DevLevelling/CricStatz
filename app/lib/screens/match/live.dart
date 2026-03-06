@@ -6,6 +6,7 @@ import 'package:cricstatz/models/match_stats.dart';
 import 'package:cricstatz/services/match_service.dart';
 import 'package:cricstatz/widgets/skeleton_loaders.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 // ─── Color Constants ───────────────────────────────────────────────────────────
@@ -37,6 +38,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
   Match? _match;
   Map<String, dynamic>? _liveData;
   bool _isLoading = true;
+  StreamSubscription<Map<String, dynamic>?>? _liveScoreSubscription;
 
   @override
   void initState() {
@@ -49,19 +51,50 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
       if (mounted) setState(() => _isLoading = false);
       return;
     }
+    Match? match;
+    Map<String, dynamic>? stats;
+
     try {
-      final match = await MatchService.getMatchDetails(widget.matchId!);
-      final stats = await MatchService.getLiveScore(widget.matchId!);
-      if (mounted) {
-        setState(() {
-          _match = match;
-          _liveData = stats;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      match = await MatchService.getMatchDetails(widget.matchId!);
+    } catch (_) {}
+
+    try {
+      stats = await MatchService.getLiveScore(widget.matchId!);
+    } catch (_) {
+      stats = null;
     }
+
+    if (mounted) {
+      setState(() {
+        _match = match;
+        _liveData = stats;
+        _isLoading = false;
+      });
+    }
+
+    _subscribeToLiveScore();
+  }
+
+  void _subscribeToLiveScore() {
+    final matchId = widget.matchId;
+    if (matchId == null) return;
+
+    _liveScoreSubscription?.cancel();
+    _liveScoreSubscription = MatchService.streamLiveScore(matchId).listen(
+      (stats) {
+        if (!mounted) return;
+        setState(() {
+          _liveData = stats;
+        });
+      },
+      onError: (_) {},
+    );
+  }
+
+  @override
+  void dispose() {
+    _liveScoreSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -90,7 +123,24 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                             summary: _liveData!['summary'] as ScoreSummary,
                           ),
                           _LiveContent(data: _liveData!),
-                        ],
+                        ] else
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF111827),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.white5),
+                            ),
+                            child: const Text(
+                              'Waiting for live score updates...',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppPalette.textMuted,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         const SizedBox(height: 100),
                       ],
                     ),

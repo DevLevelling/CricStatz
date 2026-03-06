@@ -18,12 +18,24 @@ class UpcomingFixturesScreen extends StatefulWidget {
 }
 
 class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
-  late Future<List<Match>> _matchesFuture;
+  late Future<_FixturesData> _fixturesFuture;
 
   @override
   void initState() {
     super.initState();
-    _matchesFuture = MatchService.getUpcomingMatches();
+    _fixturesFuture = _loadFixtures();
+  }
+
+  Future<_FixturesData> _loadFixtures() async {
+    final results = await Future.wait([
+      MatchService.getLiveMatches(),
+      MatchService.getUpcomingMatches(),
+    ]);
+
+    return _FixturesData(
+      live: results[0],
+      upcoming: results[1],
+    );
   }
 
   @override
@@ -37,12 +49,13 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
             children: [
               _buildHeader(context),
               Expanded(
-                child: FutureBuilder<List<Match>>(
-                  future: _matchesFuture,
+                child: FutureBuilder<_FixturesData>(
+                  future: _fixturesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
-                        child: CircularProgressIndicator(color: AppPalette.accent),
+                        child:
+                            CircularProgressIndicator(color: AppPalette.accent),
                       );
                     }
                     if (snapshot.hasError) {
@@ -53,11 +66,13 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                         ),
                       );
                     }
-                    final matches = snapshot.data ?? [];
-                    if (matches.isEmpty) {
+                    final data = snapshot.data ??
+                        const _FixturesData(
+                            live: <Match>[], upcoming: <Match>[]);
+                    if (data.live.isEmpty && data.upcoming.isEmpty) {
                       return const Center(
                         child: Text(
-                          'No upcoming fixtures found.',
+                          'No fixtures found.',
                           style: TextStyle(color: AppPalette.textMuted),
                         ),
                       );
@@ -65,12 +80,48 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                     return ListView(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
                       children: [
+                        if (data.live.isNotEmpty) ...[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Live Now',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: AppPalette.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 220,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: data.live.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 12),
+                              itemBuilder: (context, index) {
+                                return _LiveFixtureCard(
+                                    match: data.live[index]);
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               'Fixtures',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
                                     color: AppPalette.textPrimary,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 18,
@@ -79,7 +130,7 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        ...matches.map((match) => Padding(
+                        ...data.upcoming.map((match) => Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: _FixtureCard(match: match),
                             )),
@@ -120,7 +171,8 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                       child: IconButton(
                         onPressed: () {},
                         icon: Image.asset(AppAssets.iconCal,
-                            width: 20, height: 20,
+                            width: 20,
+                            height: 20,
                             color: AppPalette.textPrimary),
                         padding: EdgeInsets.zero,
                         style: IconButton.styleFrom(
@@ -139,7 +191,8 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                       child: IconButton(
                         onPressed: () {},
                         icon: Image.asset(AppAssets.iconFil,
-                            width: 20, height: 20,
+                            width: 20,
+                            height: 20,
                             color: AppPalette.textPrimary),
                         padding: EdgeInsets.zero,
                         style: IconButton.styleFrom(
@@ -225,7 +278,6 @@ class _TabItem extends StatelessWidget {
   }
 }
 
-
 class _FixtureCard extends StatelessWidget {
   const _FixtureCard({required this.match});
 
@@ -291,8 +343,7 @@ class _FixtureCard extends StatelessWidget {
                 Row(
                   children: [
                     Image.asset(AppAssets.iconCal,
-                        width: 14, height: 14,
-                        color: AppPalette.textMuted),
+                        width: 14, height: 14, color: AppPalette.textMuted),
                     const SizedBox(width: 8),
                     Text(
                       matchTime.toUpperCase(),
@@ -420,7 +471,8 @@ class _FixtureCard extends StatelessWidget {
                               }
                             : isToday
                                 ? () => _showStartConfirmation(context, match)
-                                : () => ScaffoldMessenger.of(context).showSnackBar(
+                                : () =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Reminder set!'),
                                       ),
@@ -490,7 +542,8 @@ class _FixtureCard extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: AppPalette.bgSecondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Start Match?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text('Start Match?',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Are you sure you want to start ${match.teamAId} vs ${match.teamBId} at ${match.venue}?',
           style: const TextStyle(color: AppPalette.textMuted),
@@ -498,7 +551,8 @@ class _FixtureCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL', style: TextStyle(color: AppPalette.textMuted)),
+            child: const Text('CANCEL',
+                style: TextStyle(color: AppPalette.textMuted)),
           ),
           FilledButton(
             onPressed: () {
@@ -510,12 +564,124 @@ class _FixtureCard extends StatelessWidget {
               );
             },
             style: FilledButton.styleFrom(backgroundColor: AppPalette.accent),
-            child: const Text('START', style: TextStyle(color: AppPalette.bgSecondary, fontWeight: FontWeight.bold)),
+            child: const Text('START',
+                style: TextStyle(
+                    color: AppPalette.bgSecondary,
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
+}
+
+class _LiveFixtureCard extends StatelessWidget {
+  const _LiveFixtureCard({required this.match});
+
+  final Match match;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0x660A1F43),
+        border: Border.all(color: const Color(0x990A1F43)),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppPalette.live.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Text(
+                  'LIVE',
+                  style: TextStyle(
+                    color: AppPalette.live,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                match.matchFormat?.toUpperCase() ?? 'MATCH',
+                style: const TextStyle(
+                  color: AppPalette.textMuted,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${match.teamAId} vs ${match.teamBId}',
+            style: const TextStyle(
+              color: AppPalette.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            match.venue ?? 'Venue TBD',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppPalette.textMuted,
+              fontSize: 12,
+            ),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.liveUpdate,
+                  arguments: {
+                    'match': match,
+                    'tossWinner': match.tossWinner,
+                    'decision': match.tossDecision,
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppPalette.accent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Update Score',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FixturesData {
+  const _FixturesData({
+    required this.live,
+    required this.upcoming,
+  });
+
+  final List<Match> live;
+  final List<Match> upcoming;
 }
 
 class _TeamBadge extends StatelessWidget {
