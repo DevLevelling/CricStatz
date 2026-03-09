@@ -53,11 +53,19 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
   int _innings = 1;
   int _firstInningsRuns = 0; // Track 1st innings total
   int _target = 0;
+  Map<String, dynamic>? _firstInningsSnapshot; // Saved 1st innings data for scorecard
   bool _isTransitionInProgress = false;
   bool _isBowlerPickerVisible = false;
   bool _bowlerPickerForce = false;
   bool _hasEnsuredLiveStatus = false;
   bool _hasInitializedSession = false;
+
+  // Batter picker state
+  bool _isBatterPickerVisible = false;
+  // 'opening_striker' -> pick striker, 'opening_nonstriker' -> pick non-striker, 'new_batter' -> after wicket
+  String _batterPickerMode = 'opening_striker';
+  int _pendingDismissedIndex = -1; // which position needs replacement after wicket
+  bool _openingBattersSelected = false; // true once both openers are chosen
 
   @override
   void didChangeDependencies() {
@@ -194,22 +202,70 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
   }
 
   void _bringNextBatterIn(int dismissedIndex) {
-    int nextBatsmanIndex = 0;
-    while (nextBatsmanIndex < _battingTeamPlayers.length) {
-      final candidate = _battingTeamPlayers[nextBatsmanIndex];
-      final isOut = _playerStats[candidate.id]?['out'] ?? false;
-      final inMiddle = nextBatsmanIndex == _strikerIndex ||
-          nextBatsmanIndex == _nonStrikerIndex;
-      if (!isOut && !inMiddle) {
-        if (dismissedIndex == _strikerIndex) {
-          _strikerIndex = nextBatsmanIndex;
+    // Show batter selection dialog instead of auto-picking
+    _pendingDismissedIndex = dismissedIndex;
+    _showBatterSelectionDialog(mode: 'new_batter');
+  }
+
+  void _showBatterSelectionDialog({required String mode}) {
+    if (!mounted || _battingTeamPlayers.isEmpty) return;
+    setState(() {
+      _batterPickerMode = mode;
+      _isBatterPickerVisible = true;
+    });
+  }
+
+  void _selectBatter(int index) {
+    setState(() {
+      if (_batterPickerMode == 'opening_striker') {
+        _strikerIndex = index;
+        // Move to non-striker selection
+        _batterPickerMode = 'opening_nonstriker';
+        return; // Stay visible for second pick
+      } else if (_batterPickerMode == 'opening_nonstriker') {
+        _nonStrikerIndex = index;
+        _openingBattersSelected = true;
+        _isBatterPickerVisible = false;
+        // Now show bowler picker
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_bowlerIndex < 0 && _bowlingTeamPlayers.isNotEmpty) {
+            _showBowlerSelectionDialog(force: true);
+          }
+        });
+      } else if (_batterPickerMode == 'new_batter') {
+        // Replace the dismissed player's position
+        if (_pendingDismissedIndex == _strikerIndex) {
+          _strikerIndex = index;
         } else {
-          _nonStrikerIndex = nextBatsmanIndex;
+          _nonStrikerIndex = index;
         }
-        return;
+        _pendingDismissedIndex = -1;
+        _isBatterPickerVisible = false;
       }
-      nextBatsmanIndex++;
+    });
+    _syncScore();
+  }
+
+  List<int> _availableBatterIndices() {
+    final available = <int>[];
+    for (var i = 0; i < _battingTeamPlayers.length; i++) {
+      final player = _battingTeamPlayers[i];
+      final isOut = _playerStats[player.id]?['out'] ?? false;
+      if (isOut) continue;
+      // In opening mode, don't exclude anyone already in middle (since we're picking them)
+      if (_batterPickerMode == 'opening_striker') {
+        available.add(i);
+      } else if (_batterPickerMode == 'opening_nonstriker') {
+        // Exclude the just-picked striker
+        if (i == _strikerIndex) continue;
+        available.add(i);
+      } else {
+        // new_batter mode: exclude the two currently in middle (one is dismissed but still indexed)
+        final inMiddle = i == _strikerIndex || i == _nonStrikerIndex;
+        if (!inMiddle) available.add(i);
+      }
     }
+    return available;
   }
 
   bool get _hasValidBowlerIndex =>
@@ -232,6 +288,31 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     if (_oversLimit > 0 && _legalBallsBowled >= (_oversLimit * 6)) {
       _handleInningsOrMatchComplete();
     }
+  }
+
+  List<Map<String, dynamic>> _buildAllBowlersList() {
+    final allBowlers = <Map<String, dynamic>>[];
+    for (final player in _bowlingTeamPlayers) {
+      final stats = _playerStats[player.id];
+      if (stats == null) continue;
+      final ballsBowled = (stats['balls_bowled'] ?? 0) as int;
+      if (ballsBowled <= 0) continue;
+      final overs = ballsBowled ~/ 6;
+      final balls = ballsBowled % 6;
+      final runsConceded = (stats['runs'] ?? 0) as int;
+      final econ = ballsBowled > 0
+          ? (runsConceded / (ballsBowled / 6.0)).toStringAsFixed(2)
+          : '0.0';
+      allBowlers.add({
+        'name': player.name,
+        'overs': '$overs.$balls',
+        'maidens': '0',
+        'runs': runsConceded.toString(),
+        'wickets': (stats['wickets'] ?? 0).toString(),
+        'econ': econ,
+      });
+    }
+    return allBowlers;
   }
 
   Future<void> _syncScore() async {
@@ -258,42 +339,51 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               : 'Need $runsRemaining from $ballsRemaining balls')
           : null,
       battingTeam: _battingTeamName ?? 'Batting Team',
+      firstInnings: _firstInningsSnapshot,
+      allBowlers: _buildAllBowlersList(),
+      squadSize: _battingTeamPlayers.length,
     );
 
-    // Build batsman list with proper indices
+    // Build batsman list with ALL who have batted
     final batsmen = <BatsmanScore>[];
+    final addedPlayerIds = <String>{};
 
-    if (_strikerIndex >= 0 && _strikerIndex < _battingTeamPlayers.length) {
-      final striker = _battingTeamPlayers[_strikerIndex];
-      final strikerStats = _playerStats[striker.id] ?? {};
+    // Helper to add a batsman
+    void addBatsman(int index, {bool isActive = false}) {
+      if (index < 0 || index >= _battingTeamPlayers.length) return;
+      final player = _battingTeamPlayers[index];
+      if (addedPlayerIds.contains(player.id)) return;
+      addedPlayerIds.add(player.id);
+      final stats = _playerStats[player.id] ?? {};
+      final isOut = (stats['out'] ?? false) as bool;
+      final dismissal = stats['dismissal'] as String?;
       batsmen.add(
         BatsmanScore(
-          name: striker.name,
-          runs: (strikerStats['runs'] ?? 0).toString(),
-          balls: (strikerStats['balls'] ?? 0).toString(),
-          fours: strikerStats['fours'] ?? 0,
-          sixes: strikerStats['sixes'] ?? 0,
-          sr: strikerStats['sr'] ?? '0.0',
-          isActive: true,
+          name: player.name,
+          runs: (stats['runs'] ?? 0).toString(),
+          balls: (stats['balls'] ?? 0).toString(),
+          fours: stats['fours'] ?? 0,
+          sixes: stats['sixes'] ?? 0,
+          sr: stats['sr'] ?? '0.0',
+          isActive: isActive,
+          dismissal: isOut ? (dismissal ?? 'out') : (isActive ? 'batting *' : 'not out'),
         ),
       );
     }
 
-    if (_nonStrikerIndex >= 0 &&
-        _nonStrikerIndex < _battingTeamPlayers.length) {
-      final nonStriker = _battingTeamPlayers[_nonStrikerIndex];
-      final nonStrikerStats = _playerStats[nonStriker.id] ?? {};
-      batsmen.add(
-        BatsmanScore(
-          name: nonStriker.name,
-          runs: (nonStrikerStats['runs'] ?? 0).toString(),
-          balls: (nonStrikerStats['balls'] ?? 0).toString(),
-          fours: nonStrikerStats['fours'] ?? 0,
-          sixes: nonStrikerStats['sixes'] ?? 0,
-          sr: nonStrikerStats['sr'] ?? '0.0',
-          isActive: false,
-        ),
-      );
+    // Add all players who have stats (batted at some point)
+    for (var i = 0; i < _battingTeamPlayers.length; i++) {
+      final player = _battingTeamPlayers[i];
+      final stats = _playerStats[player.id];
+      if (stats == null) continue;
+      final balls = (stats['balls'] ?? 0) as int;
+      final runs = (stats['runs'] ?? 0) as int;
+      final isOut = (stats['out'] ?? false) as bool;
+      if (balls > 0 || runs > 0 || isOut) {
+        final isCurrentStriker = i == _strikerIndex;
+        final isCurrentNonStriker = i == _nonStrikerIndex;
+        addBatsman(i, isActive: isCurrentStriker || isCurrentNonStriker);
+      }
     }
 
     // Get current bowler with proper stats
@@ -355,6 +445,18 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     final restored = await _restoreExistingLiveScore();
     if (!restored) {
       await _syncScore();
+    }
+    // Show pickers only after restore attempt completes
+    if (mounted) {
+      if (!_openingBattersSelected && _battingTeamPlayers.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showBatterSelectionDialog(mode: 'opening_striker');
+        });
+      } else if (_bowlerIndex < 0 && _bowlingTeamPlayers.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showBowlerSelectionDialog(force: true);
+        });
+      }
     }
   }
 
@@ -464,6 +566,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
           }
         }
       });
+
+      _openingBattersSelected = true; // Batters were already selected in a previous session
+
+      // Restore first innings snapshot if available
+      if (summary.firstInnings != null) {
+        _firstInningsSnapshot = summary.firstInnings;
+      }
 
       return true;
     } catch (_) {
@@ -576,11 +685,6 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
           debugPrint('=== _fetchBattingTeamPlayers COMPLETE ===');
         });
-        if (_bowlerIndex < 0 && bowlingPlayers.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showBowlerSelectionDialog(force: true);
-          });
-        }
       } else {
         debugPrint('⚠️ Widget not mounted, setState not called');
       }
@@ -654,6 +758,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     bool isWicket = false,
     int? dismissedBatsmanIndex,
     bool creditWicketToBowler = true,
+    String? dismissalType,
   }) {
     // For legal balls, respect overs limit and innings transitions.
     if (isLegal && !_canBowlNextLegalBall) {
@@ -773,10 +878,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                   'out': false,
                 });
         _playerStats[dismissedPlayer.id]!['out'] = true;
+        _playerStats[dismissedPlayer.id]!['dismissal'] = dismissalType ?? 'out';
         _partnershipRuns = 0;
         _partnershipBalls = 0;
         _bringNextBatterIn(dismissedBatsmanIndex);
-      } else if (!isWicket && runDelta.isOdd) {
+      } else if (!isWicket && isLegal && runDelta.isOdd) {
         _switchStrike();
       }
 
@@ -827,6 +933,65 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       _firstInningsRuns = _runs;
       debugPrint('First innings run saved: $_firstInningsRuns');
 
+      // Capture 1st innings snapshot for the scorecard
+      _firstInningsSnapshot = {
+        'batting_team': _battingTeamName,
+        'runs': _runs.toString(),
+        'wickets': _wickets.toString(),
+        'overs': _oversStringFromBalls(_legalBallsBowled),
+        'crr': _calculateCurrentRunRate().toStringAsFixed(2),
+        'batsmen': _battingTeamPlayers
+            .where((p) {
+              final stats = _playerStats[p.id];
+              if (stats == null) return false;
+              final balls = (stats['balls'] ?? 0) as int;
+              final runs = (stats['runs'] ?? 0) as int;
+              return balls > 0 || runs > 0;
+            })
+            .map((p) {
+              final stats = _playerStats[p.id]!;
+              final isOut = (stats['out'] ?? false) as bool;
+              final dismissal = stats['dismissal'] as String?;
+              return {
+                'name': p.name,
+                'runs': (stats['runs'] ?? 0).toString(),
+                'balls': (stats['balls'] ?? 0).toString(),
+                'fours': stats['fours'] ?? 0,
+                'sixes': stats['sixes'] ?? 0,
+                'sr': stats['sr'] ?? '0.0',
+                'is_active': false,
+                'dismissal': isOut ? (dismissal ?? 'out') : 'not out',
+              };
+            })
+            .toList(),
+        'bowler': _bowlingTeamPlayers
+            .where((p) {
+              final stats = _playerStats[p.id];
+              if (stats == null) return false;
+              final ballsBowled = (stats['balls_bowled'] ?? 0) as int;
+              return ballsBowled > 0;
+            })
+            .map((p) {
+              final stats = _playerStats[p.id]!;
+              final ballsBowled = (stats['balls_bowled'] ?? 0) as int;
+              final overs = ballsBowled ~/ 6;
+              final balls = ballsBowled % 6;
+              final runsConceded = (stats['runs'] ?? 0) as int;
+              final econ = ballsBowled > 0
+                  ? (runsConceded / (ballsBowled / 6.0)).toStringAsFixed(2)
+                  : '0.0';
+              return {
+                'name': p.name,
+                'overs': '$overs.$balls',
+                'maidens': '0',
+                'runs': runsConceded.toString(),
+                'wickets': (stats['wickets'] ?? 0).toString(),
+                'econ': econ,
+              };
+            })
+            .toList(),
+      };
+
       _innings = 2;
       // Swap batting side
       _battingTeamName = _battingTeamName == _teamA ? _teamB : _teamA;
@@ -851,15 +1016,22 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       _bowlerIndex = -1;
       _partnershipRuns = 0;
       _partnershipBalls = 0;
+      _openingBattersSelected = false; // Reset so batter picker shows for 2nd innings
 
       // Clear player stats for second innings teams
       _playerStats.clear();
       _playersLoaded = false;
     });
     _fetchBattingTeamPlayers().then((_) {
-      // if fetch returns empty, UI will show message
+      if (mounted && _playersLoaded && _fetchError == null) {
+        _syncScore();
+        if (!_openingBattersSelected && _battingTeamPlayers.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showBatterSelectionDialog(mode: 'opening_striker');
+          });
+        }
+      }
     });
-    _syncScore();
   }
 
   void _handleInningsOrMatchComplete() {
@@ -1178,6 +1350,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       isWicket: true,
       dismissedBatsmanIndex: dismissedIndex,
       creditWicketToBowler: creditToBowler,
+      dismissalType: type,
     );
   }
 
@@ -1213,6 +1386,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               ),
             ),
           ),
+          if (_isBatterPickerVisible) _buildBatterPickerOverlay(),
           if (_isBowlerPickerVisible) _buildBowlerPickerOverlay(),
         ],
       ),
@@ -1277,6 +1451,104 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                       ),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBatterPickerOverlay() {
+    final available = _availableBatterIndices();
+    String title;
+    if (_batterPickerMode == 'opening_striker') {
+      title = 'Select Striker';
+    } else if (_batterPickerMode == 'opening_nonstriker') {
+      title = 'Select Non-Striker';
+    } else {
+      title = 'Select Next Batter';
+    }
+
+    return Positioned.fill(
+      child: Material(
+        color: Colors.black54,
+        child: GestureDetector(
+          onTap: () {}, // Don't allow dismissing by tapping outside
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              decoration: BoxDecoration(
+                color: AppPalette.bgSecondary,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppPalette.cardStroke),
+              ),
+              constraints: const BoxConstraints(maxHeight: 420),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppPalette.accent.withAlpha((0.15 * 255).toInt()),
+                    ),
+                    child: const Icon(Icons.sports_cricket,
+                        color: AppPalette.accent, size: 28),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  if (_batterPickerMode == 'opening_striker')
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Choose who will face the first ball',
+                        style:
+                            TextStyle(color: AppPalette.textMuted, fontSize: 12),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: available.length,
+                      separatorBuilder: (_, __) =>
+                          const Divider(color: AppPalette.cardStroke, height: 1),
+                      itemBuilder: (_, i) {
+                        final playerIndex = available[i];
+                        final player = _battingTeamPlayers[playerIndex];
+                        final initials = player.name
+                            .split(' ')
+                            .map((w) => w.isNotEmpty ? w[0].toUpperCase() : '')
+                            .join();
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: AppPalette.accent
+                                .withAlpha((0.2 * 255).toInt()),
+                            child: Text(initials,
+                                style: const TextStyle(
+                                    color: AppPalette.accent,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13)),
+                          ),
+                          title: Text(
+                            player.name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          onTap: () => _selectBatter(playerIndex),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1695,8 +1967,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
   }
 
   Widget _buildKeypad() {
-    final canScore =
+    final hasBowler =
         _bowlerIndex >= 0 && _bowlerIndex < _bowlingTeamPlayers.length;
+    final canScore = hasBowler && _openingBattersSelected;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       decoration: const BoxDecoration(
@@ -1708,11 +1981,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       child: Column(
         children: [
           if (!canScore)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 10),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
               child: Text(
-                'Select bowler to start scoring',
-                style: TextStyle(color: AppPalette.textMuted),
+                !_openingBattersSelected
+                    ? 'Select opening batters to start scoring'
+                    : 'Select bowler to start scoring',
+                style: const TextStyle(color: AppPalette.textMuted),
               ),
             ),
           IgnorePointer(

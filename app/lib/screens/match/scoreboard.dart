@@ -19,14 +19,15 @@ class MatchScoreboardScreen extends StatefulWidget {
   static const Color _headerOverlay = Color(0x660A1F43);
   static const Color _rowOverlay = Color(0x330D1729);
   static const Color _accentBlue = Color(0xFF60A5FA);
-  static const Color _ausHeaderBg = Color(0x333E60AF);
 }
 
 class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
-  bool _isAustraliaExpanded = false;
-  List<Map<String, dynamic>>? _scoreboardData;
   bool _isLoading = true;
   Match? _match;
+  ScoreSummary? _summary;
+  List<BatsmanScore> _batsmen = [];
+  BowlerScore? _bowler;
+  Partnership? _partnership;
 
   @override
   void initState() {
@@ -42,12 +43,18 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
     try {
       final results = await Future.wait([
         MatchService.getMatchDetails(widget.matchId!),
-        MatchService.getScoreboard(widget.matchId!),
+        MatchService.getLiveScore(widget.matchId!),
       ]);
       if (!mounted) return;
+      final liveScore = results[1] as Map<String, dynamic>;
       setState(() {
         _match = results[0] as Match;
-        _scoreboardData = results[1] as List<Map<String, dynamic>>;
+        _summary = liveScore['summary'] as ScoreSummary?;
+        _batsmen = (liveScore['batsmen'] as List<dynamic>? ?? <dynamic>[])
+            .whereType<BatsmanScore>()
+            .toList();
+        _bowler = liveScore['bowler'] as BowlerScore?;
+        _partnership = liveScore['partnership'] as Partnership?;
         _isLoading = false;
       });
     } catch (e) {
@@ -70,7 +77,7 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
                  const SizedBox(height: 16),
                  Padding(
                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                   child: _isLoading 
+                   child: _isLoading
                       ? const Column(
                           children: [
                             SkeletonLoader(width: double.infinity, height: 60),
@@ -78,45 +85,135 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
                             SkeletonLoader(width: double.infinity, height: 300),
                           ],
                         )
-                      : Column(
-                          children: [
-                            if (_scoreboardData != null && _scoreboardData!.isNotEmpty) ...[
-                              _InningsSummaryBar(title: _scoreboardData![0]['innings'] as String, total: _scoreboardData![0]['total'] as String),
-                              const SizedBox(height: 10),
-                              _BattingTable(batsmen: _scoreboardData![0]['batting'] as List<BatsmanScore>),
-                              const _ExtrasTotal(),
-                              const SizedBox(height: 12),
-                              // Fall of wickets could also be dynamic
-                              const _FallOfWickets(),
-                              const SizedBox(height: 12),
-                              _BowlingTable(bowlers: _scoreboardData![0]['bowling'] as List<BowlerScore>),
-                            ],
-                            const SizedBox(height: 16),
-                            const _KeyPartnerships(),
-                      const SizedBox(height: 18),
-                      _AustraliaInningsHeader(
-                        expanded: _isAustraliaExpanded,
-                        onTap: () => setState(
-                          () => _isAustraliaExpanded = !_isAustraliaExpanded,
-                        ),
-                      ),
-                      AnimatedCrossFade(
-                        firstChild: const SizedBox.shrink(),
-                        secondChild: const _AustraliaFullScorecard(),
-                        crossFadeState: _isAustraliaExpanded
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        duration: const Duration(milliseconds: 200),
-                        sizeCurve: Curves.easeOutCubic,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                      : _summary == null
+                          ? _buildNoData()
+                          : _buildScorecard(),
+                 ),
+               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNoData() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: MatchScoreboardScreen._card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MatchScoreboardScreen._stroke),
+      ),
+      child: const Center(
+        child: Text(
+          'No scorecard data available yet.\nStart scoring to see the scorecard.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppPalette.textMuted, fontSize: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScorecard() {
+    final summary = _summary!;
+    final battingTeam = summary.battingTeam ?? 'Batting Team';
+    final inningsName = summary.inningsName;
+    final runs = summary.runs;
+    final wickets = summary.wickets;
+    final overs = summary.overs;
+    final totalStr = '$runs/$wickets ($overs ov)';
+
+    final firstInnings = summary.firstInnings;
+
+    return Column(
+      children: [
+        // ── 1st Innings (from snapshot, if available) ──
+        if (firstInnings != null) ...[
+          _buildFirstInningsSection(firstInnings),
+          const SizedBox(height: 18),
+        ],
+
+        // ── Current Innings ──
+        _InningsSummaryBar(
+          title: '$battingTeam - $inningsName',
+          total: totalStr,
+        ),
+        const SizedBox(height: 10),
+        if (_batsmen.isNotEmpty) ...[
+          _BattingTable(batsmen: _batsmen),
+          _ExtrasTotal(
+            totalRuns: runs,
+            totalWickets: wickets,
+            totalOvers: overs,
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (_buildCurrentInningsBowlers().isNotEmpty) ...[
+          _BowlingTable(bowlers: _buildCurrentInningsBowlers()),
+          const SizedBox(height: 12),
+        ],
+        if (_partnership != null)
+          _PartnershipCard(partnership: _partnership!),
+        if (summary.target != null && summary.target!.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          _TargetCard(summary: summary),
+        ],
+      ],
+    );
+  }
+
+  List<BowlerScore> _buildCurrentInningsBowlers() {
+    // Use allBowlers from summary if available
+    if (_summary?.allBowlers != null && _summary!.allBowlers!.isNotEmpty) {
+      return _summary!.allBowlers!
+          .map((e) => BowlerScore.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    // Fall back to single current bowler
+    if (_bowler != null) return [_bowler!];
+    return [];
+  }
+
+  Widget _buildFirstInningsSection(Map<String, dynamic> data) {
+    final team = data['batting_team'] as String? ?? '1st Innings';
+    final runs = data['runs']?.toString() ?? '0';
+    final wickets = data['wickets']?.toString() ?? '0';
+    final overs = data['overs']?.toString() ?? '0.0';
+    final totalStr = '$runs/$wickets ($overs ov)';
+
+    // Parse batsmen
+    final batsmenJson = data['batsmen'] as List<dynamic>? ?? [];
+    final batsmen = batsmenJson
+        .map((e) => BatsmanScore.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    // Parse bowlers
+    final bowlerJson = data['bowler'] as List<dynamic>? ?? [];
+    final bowlers = bowlerJson
+        .map((e) => BowlerScore.fromJson(e as Map<String, dynamic>))
+        .toList();
+
+    return Column(
+      children: [
+        _InningsSummaryBar(
+          title: '$team - 1st Innings',
+          total: totalStr,
+        ),
+        const SizedBox(height: 10),
+        if (batsmen.isNotEmpty) ...[
+          _BattingTable(batsmen: batsmen),
+          _ExtrasTotal(
+            totalRuns: runs,
+            totalWickets: wickets,
+            totalOvers: overs,
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (bowlers.isNotEmpty) ...[
+          _BowlingTable(bowlers: bowlers),
+        ],
+      ],
     );
   }
 }
@@ -124,7 +221,7 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
 class _TopBar extends StatelessWidget {
   final Match? match;
   const _TopBar({this.match});
-  
+
   @override
   Widget build(BuildContext context) {
     final teamA = match?.teamAId ?? 'Team A';
@@ -345,7 +442,7 @@ class _BattingTable extends StatelessWidget {
 
     Widget row({
       required String name,
-      required String dismissal,
+      required String status,
       required String r,
       required String b,
       required String f4,
@@ -363,10 +460,17 @@ class _BattingTable extends StatelessWidget {
               flex: 5,
               child: Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 18,
-                    backgroundColor: Color(0xFF1E293B),
-                    child: Icon(Icons.person, size: 18, color: Colors.white),
+                    backgroundColor: const Color(0xFF1E293B),
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -383,7 +487,7 @@ class _BattingTable extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          dismissal,
+                          status,
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: AppPalette.textMuted,
@@ -434,7 +538,7 @@ class _BattingTable extends StatelessWidget {
           ),
           ...batsmen.map((b) => row(
             name: b.name,
-            dismissal: 'dismissed', // Should be dynamic
+            status: b.dismissal ?? (b.isActive == true ? 'batting *' : 'not out'),
             r: b.runs,
             b: b.balls,
             f4: b.fours.toString(),
@@ -460,7 +564,14 @@ class _BattingTable extends StatelessWidget {
 }
 
 class _ExtrasTotal extends StatelessWidget {
-  const _ExtrasTotal();
+  final String totalRuns;
+  final String totalWickets;
+  final String totalOvers;
+  const _ExtrasTotal({
+    required this.totalRuns,
+    required this.totalWickets,
+    required this.totalOvers,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -474,149 +585,34 @@ class _ExtrasTotal extends StatelessWidget {
           bottom: BorderSide(color: MatchScoreboardScreen._stroke),
         ),
       ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Extras',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppPalette.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              const Spacer(),
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppPalette.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                  children: const [
-                    TextSpan(text: '12 '),
-                    TextSpan(
-                      text: '(b 1, lb 2, w 9, nb 0)',
-                      style: TextStyle(
-                        color: AppPalette.textSubtle,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(height: 1, color: const Color(0x0DFFFFFF)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                'Total Runs',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppPalette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const Spacer(),
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: MatchScoreboardScreen._accentBlue,
-                        fontWeight: FontWeight.w800,
-                      ),
-                  children: const [
-                    TextSpan(text: '240 '),
-                    TextSpan(
-                      text: '(10 wickets, 50.0 overs)',
-                      style: TextStyle(
-                        color: AppPalette.textMuted,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FallOfWickets extends StatelessWidget {
-  const _FallOfWickets();
-
-  @override
-  Widget build(BuildContext context) {
-    Widget chip(String top, String name, String over) {
-      return Container(
-        width: 78,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0x801E293B),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0x331E293B)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              top,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppPalette.textMuted,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 10,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              name,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppPalette.textPrimary,
-                    fontWeight: FontWeight.w800,
-                  ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              over,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppPalette.textMuted,
-                    fontSize: 10,
-                  ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           Text(
-            'FALL OF WICKETS',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppPalette.textMuted,
+            'Total',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppPalette.textPrimary,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                  fontSize: 10,
                 ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              chip('1-30', 'Gill', '4.2 ov'),
-              const SizedBox(width: 10),
-              chip('2-76', 'Rohit', '9.4 ov'),
-              const SizedBox(width: 10),
-              chip('3-81', 'Iyer', '10.2 ov'),
-              const SizedBox(width: 10),
-              chip('4-148', 'Kohli', '23.0 ov'),
-            ],
+          const Spacer(),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: MatchScoreboardScreen._accentBlue,
+                    fontWeight: FontWeight.w800,
+                  ),
+              children: [
+                TextSpan(text: '$totalRuns '),
+                TextSpan(
+                  text: '($totalWickets wkts, $totalOvers ov)',
+                  style: const TextStyle(
+                    color: AppPalette.textMuted,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -719,110 +715,37 @@ class _BowlingTable extends StatelessWidget {
   }
 }
 
-class _KeyPartnerships extends StatelessWidget {
-  const _KeyPartnerships();
+class _PartnershipCard extends StatelessWidget {
+  final Partnership partnership;
+  const _PartnershipCard({required this.partnership});
 
   @override
   Widget build(BuildContext context) {
-    Widget card({
-      required String title,
-      required String summary,
-      required double value,
-      required String left,
-      required String right,
-    }) {
-      return Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MatchScoreboardScreen._card,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MatchScoreboardScreen._stroke),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppPalette.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                Text(
-                  summary,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: MatchScoreboardScreen._accentBlue,
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: value,
-                minHeight: 6,
-                backgroundColor: const Color(0xFF0B1F3D),
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppPalette.accent),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  left,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppPalette.textMuted,
-                      ),
-                ),
-                Text(
-                  right,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AppPalette.textMuted,
-                      ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: MatchScoreboardScreen._card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MatchScoreboardScreen._stroke),
+      ),
+      child: Row(
         children: [
+          const Icon(Icons.handshake_outlined, color: AppPalette.textMuted, size: 18),
+          const SizedBox(width: 10),
           Text(
-            'KEY PARTNERSHIPS',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppPalette.textMuted,
+            'Partnership',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppPalette.textPrimary,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                  fontSize: 10,
                 ),
           ),
-          const SizedBox(height: 12),
-          card(
-            title: 'Kohli & Rahul',
-            summary: '67 (109)',
-            value: 0.55,
-            left: 'Kohli: 32(50)',
-            right: 'Rahul: 31(59)',
-          ),
-          const SizedBox(height: 12),
-          card(
-            title: 'Rohit & Gill',
-            summary: '30 (26)',
-            value: 0.8,
-            left: 'Rohit: 25(19)',
-            right: 'Gill: 4(7)',
+          const Spacer(),
+          Text(
+            '${partnership.runs} runs (${partnership.balls} balls)',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: MatchScoreboardScreen._accentBlue,
+                  fontWeight: FontWeight.w800,
+                ),
           ),
         ],
       ),
@@ -830,188 +753,14 @@ class _KeyPartnerships extends StatelessWidget {
   }
 }
 
-class _AustraliaInningsHeader extends StatelessWidget {
-  const _AustraliaInningsHeader({required this.expanded, required this.onTap});
-
-  final bool expanded;
-  final VoidCallback onTap;
+class _TargetCard extends StatelessWidget {
+  final ScoreSummary summary;
+  const _TargetCard({required this.summary});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 17),
-        decoration: BoxDecoration(
-          color: MatchScoreboardScreen._ausHeaderBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: MatchScoreboardScreen._stroke),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAB308),
-                shape: BoxShape.circle,
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x14000000),
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Text(
-                'AUS',
-                style: TextStyle(
-                  color: AppPalette.bgSecondary,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Australia Innings',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppPalette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-              ),
-            ),
-            Text(
-              '241/4',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppPalette.textPrimary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 20,
-                  ),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '(43.0)',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppPalette.textMuted,
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
-            const SizedBox(width: 12),
-            Icon(
-              expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-              color: AppPalette.textMuted,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AustraliaFullScorecard extends StatelessWidget {
-  const _AustraliaFullScorecard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: const [
-        _AustraliaBattingTable(),
-        _AustraliaExtrasTotal(),
-        SizedBox(height: 12),
-        _AustraliaBowlingTable(),
-      ],
-    );
-  }
-}
-
-class _AustraliaBattingTable extends StatelessWidget {
-  const _AustraliaBattingTable();
-
-  @override
-  Widget build(BuildContext context) {
-    Widget headerCell(String label, {TextAlign align = TextAlign.center}) {
-      return Text(
-        label,
-        textAlign: align,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: AppPalette.textMuted,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1,
-              fontSize: 10,
-            ),
-      );
-    }
-
-    Widget row({
-      required String name,
-      required String dismissal,
-      required String r,
-      required String b,
-      required String f4,
-      required String f6,
-    }) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0x801E293B))),
-          color: MatchScoreboardScreen._rowOverlay,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Color(0xFF1E293B),
-                    child: Icon(Icons.person, size: 18, color: Colors.white),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppPalette.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          dismissal,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppPalette.textMuted,
-                                    fontSize: 10,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(child: _num(context, r, bold: true)),
-            Expanded(child: _num(context, b, muted: true)),
-            Expanded(child: _num(context, f4, muted: true)),
-            Expanded(child: _num(context, f6, muted: true)),
-          ],
-        ),
-      );
-    }
-
     return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: MatchScoreboardScreen._card,
         borderRadius: BorderRadius.circular(12),
@@ -1019,239 +768,40 @@ class _AustraliaBattingTable extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 9),
-            decoration: const BoxDecoration(
-              color: MatchScoreboardScreen._headerOverlay,
-              border: Border(
-                  bottom: BorderSide(color: MatchScoreboardScreen._stroke)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                    flex: 5,
-                    child: headerCell('BATTER', align: TextAlign.left)),
-                Expanded(child: headerCell('R')),
-                Expanded(child: headerCell('B')),
-                Expanded(child: headerCell('4S')),
-                Expanded(child: headerCell('6S')),
-              ],
-            ),
-          ),
-          row(
-            name: 'Travis Head',
-            dismissal: 'c Gill b Siraj',
-            r: '137',
-            b: '120',
-            f4: '15',
-            f6: '4',
-          ),
-          row(
-            name: 'Marnus\nLabuschagne',
-            dismissal: 'not out',
-            r: '58',
-            b: '110',
-            f4: '4',
-            f6: '0',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _num(BuildContext context, String v,
-      {bool bold = false, bool muted = false}) {
-    return Text(
-      v,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: muted ? AppPalette.textMuted : AppPalette.textPrimary,
-            fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
-            fontSize: 14,
-          ),
-    );
-  }
-}
-
-class _AustraliaExtrasTotal extends StatelessWidget {
-  const _AustraliaExtrasTotal();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: const BoxDecoration(
-        color: Color(0x330A1F43),
-        border: Border(
-          left: BorderSide(color: MatchScoreboardScreen._stroke),
-          right: BorderSide(color: MatchScoreboardScreen._stroke),
-          bottom: BorderSide(color: MatchScoreboardScreen._stroke),
-        ),
-      ),
-      child: Column(
-        children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Extras',
+                'Target: ${summary.target}',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppPalette.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              if (summary.reqRate != null)
+                Text(
+                  'RRR: ${summary.reqRate}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: MatchScoreboardScreen._accentBlue,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+            ],
+          ),
+          if (summary.summaryText != null && summary.summaryText!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                summary.summaryText!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppPalette.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              const Spacer(),
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppPalette.textPrimary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                  children: const [
-                    TextSpan(text: '18 '),
-                    TextSpan(
-                      text: '(b 5, lb 2, w 11, nb 0)',
-                      style: TextStyle(
-                        color: AppPalette.textSubtle,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(height: 1, color: const Color(0x0DFFFFFF)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                'Total Runs',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppPalette.textPrimary,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const Spacer(),
-              RichText(
-                text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: MatchScoreboardScreen._accentBlue,
-                        fontWeight: FontWeight.w800,
-                      ),
-                  children: const [
-                    TextSpan(text: '241 '),
-                    TextSpan(
-                      text: '(4 wickets, 43.0 overs)',
-                      style: TextStyle(
-                        color: AppPalette.textMuted,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AustraliaBowlingTable extends StatelessWidget {
-  const _AustraliaBowlingTable();
-
-  @override
-  Widget build(BuildContext context) {
-    Widget headerCell(String t) => Text(
-          t,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AppPalette.textMuted,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1,
-                fontSize: 10,
-              ),
-        );
-
-    Widget row(
-        String name, String o, String m, String r, String w, String eco) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0x801E293B))),
-          color: Color(0x330D1729),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Text(
-                name,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppPalette.textPrimary,
-                      fontWeight: FontWeight.w700,
                     ),
               ),
             ),
-            Expanded(child: _num(context, o)),
-            Expanded(child: _num(context, m, muted: true)),
-            Expanded(child: _num(context, r)),
-            Expanded(child: _num(context, w, blue: true)),
-            Expanded(child: _num(context, eco, muted: true)),
           ],
-        ),
-      );
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: MatchScoreboardScreen._card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MatchScoreboardScreen._stroke),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 9, 16, 9),
-            decoration: const BoxDecoration(
-              color: MatchScoreboardScreen._headerOverlay,
-              border: Border(
-                  bottom: BorderSide(color: MatchScoreboardScreen._stroke)),
-            ),
-            child: Row(
-              children: [
-                Expanded(flex: 5, child: headerCell('BOWLER')),
-                Expanded(child: headerCell('O')),
-                Expanded(child: headerCell('M')),
-                Expanded(child: headerCell('R')),
-                Expanded(child: headerCell('W')),
-                Expanded(child: headerCell('ECO')),
-              ],
-            ),
-          ),
-          row('Jasprit Bumrah', '9', '2', '43', '2', '4.77'),
-          row('Mohammed Shami', '7', '1', '47', '1', '6.71'),
         ],
       ),
-    );
-  }
-
-  Widget _num(BuildContext context, String v,
-      {bool muted = false, bool blue = false}) {
-    return Text(
-      v,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: blue
-                ? MatchScoreboardScreen._accentBlue
-                : (muted ? AppPalette.textMuted : AppPalette.textPrimary),
-            fontWeight: blue ? FontWeight.w800 : FontWeight.w500,
-            fontSize: 14,
-          ),
     );
   }
 }

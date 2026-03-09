@@ -355,7 +355,8 @@ class _ResultData {
 
       if (target != null && target > 0) {
         if (secondInningsRuns >= target) {
-          final wicketsRemaining = 10 - secondInningsWickets;
+          final totalWickets = summary.squadSize != null ? summary.squadSize! - 1 : 10;
+          final wicketsRemaining = totalWickets - secondInningsWickets;
           outcome = '$secondBattingTeam won by $wicketsRemaining wickets';
         } else {
           final margin = target - secondInningsRuns - 1;

@@ -7,6 +7,7 @@ class BatsmanScore {
   final String sr;
   final bool? isActive;
   final String? imageUrl;
+  final String? dismissal;
 
   const BatsmanScore({
     required this.name,
@@ -17,6 +18,7 @@ class BatsmanScore {
     required this.sr,
     this.isActive,
     this.imageUrl,
+    this.dismissal,
   });
 
   factory BatsmanScore.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class BatsmanScore {
       sr: json['sr'].toString(),
       isActive: json['is_active'] as bool?,
       imageUrl: json['image_url'] as String?,
+      dismissal: json['dismissal'] as String?,
     );
   }
 
@@ -41,6 +44,7 @@ class BatsmanScore {
         'sr': sr,
         'is_active': isActive,
         'image_url': imageUrl,
+        'dismissal': dismissal,
       };
 }
 
@@ -119,6 +123,9 @@ class ScoreSummary {
   final String? reqRate;
   final String? summaryText;
   final String? battingTeam;
+  final Map<String, dynamic>? firstInnings;
+  final List<dynamic>? allBowlers;
+  final int? squadSize;
 
   const ScoreSummary({
     required this.inningsName,
@@ -130,6 +137,9 @@ class ScoreSummary {
     this.reqRate,
     this.summaryText,
     this.battingTeam,
+    this.firstInnings,
+    this.allBowlers,
+    this.squadSize,
   });
 
   Map<String, dynamic> toJson() => {
@@ -142,6 +152,9 @@ class ScoreSummary {
         'req_rate': reqRate,
         'summary_text': summaryText,
         'batting_team': battingTeam,
+        'first_innings': firstInnings,
+        'all_bowlers': allBowlers,
+        'squad_size': squadSize,
       };
 
   factory ScoreSummary.fromJson(Map<String, dynamic> json) {
@@ -155,6 +168,9 @@ class ScoreSummary {
       reqRate: json['req_rate']?.toString(),
       summaryText: json['summary_text'] as String?,
       battingTeam: json['batting_team'] as String?,
+      firstInnings: json['first_innings'] as Map<String, dynamic>?,
+      allBowlers: json['all_bowlers'] as List<dynamic>?,
+      squadSize: json['squad_size'] as int?,
     );
   }
 }
