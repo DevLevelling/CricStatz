@@ -17,6 +17,7 @@ class MatchService {
           .map((e) => BatsmanScore.fromJson(e as Map<String, dynamic>))
           .toList(),
       'bowler': BowlerScore.fromJson(bowlerJson),
+      'updated_at': data['updated_at'] as String?,
     };
   }
 
