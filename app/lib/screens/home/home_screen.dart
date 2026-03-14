@@ -769,57 +769,88 @@ class _UpcomingMatchesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return FutureBuilder<List<Match>>(
+      future: MatchService.getUpcomingMatches(),
+      builder: (context, snapshot) {
+        final matches = snapshot.data ?? [];
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 130,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        }
+        if (matches.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Upcoming Matches',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppPalette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                  ),
+            Row(
+              children: [
+                Text(
+                  'Upcoming Matches',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppPalette.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () =>
+                      Navigator.push(context, AppRoutes.buildUpcomingRoute()),
+                  child: const Text('View All'),
+                ),
+              ],
             ),
-            const Spacer(),
-            TextButton(
-              onPressed: () =>
-                  Navigator.push(context, AppRoutes.buildUpcomingRoute()),
-              child: const Text('View All'),
+            SizedBox(
+              height: 118,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: matches.length > 3 ? 3 : matches.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final match = matches[index];
+                  final dateStr = match.matchDate != null
+                      ? _formatMatchDate(match.matchDate!)
+                      : 'TBD';
+                  final subtitle =
+                      '${match.matchFormat ?? 'Match'}${match.venue != null ? ' - ${match.venue}' : ''}';
+                  return _UpcomingCard(
+                    time: dateStr,
+                    teamA: match.teamAId,
+                    teamB: match.teamBId,
+                    subtitle: subtitle,
+                    onTap: () =>
+                        Navigator.push(context, AppRoutes.buildUpcomingRoute()),
+                  );
+                },
+              ),
             ),
           ],
-        ),
-        SizedBox(
-          height: 118,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              _UpcomingCard(
-                time: 'TOMORROW, 14:00',
-                teamA: 'ENG',
-                teamB: 'RSA',
-                teamAFlag: AppAssets.flagEng,
-                teamBFlag: AppAssets.flagRsa,
-                subtitle: 'ODI Series - Lords, London',
-                onTap: () =>
-                    Navigator.push(context, AppRoutes.buildUpcomingRoute()),
-              ),
-              const SizedBox(width: 16),
-              _UpcomingCard(
-                time: '24 MAY, 19:30',
-                teamA: 'NZL',
-                teamB: 'PAK',
-                teamAFlag: AppAssets.flagNzl,
-                teamBFlag: AppAssets.flagPak,
-                subtitle: 'T20 International - Auckland',
-                onTap: () =>
-                    Navigator.push(context, AppRoutes.buildUpcomingRoute()),
-              ),
-            ],
-          ),
-        ),
-      ],
+        );
+      },
     );
+  }
+
+  static String _formatMatchDate(DateTime date) {
+    final now = DateTime.now();
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    final matchDay = DateTime(date.year, date.month, date.day);
+
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+
+    if (matchDay == DateTime(now.year, now.month, now.day)) {
+      return 'TODAY, $hour:$minute';
+    } else if (matchDay == tomorrow) {
+      return 'TOMORROW, $hour:$minute';
+    } else {
+      final months = [
+        '', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+        'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+      ];
+      return '${date.day} ${months[date.month]}, $hour:$minute';
+    }
   }
 }
 
@@ -829,8 +860,6 @@ class _UpcomingCard extends StatelessWidget {
     required this.teamA,
     required this.teamB,
     required this.subtitle,
-    required this.teamAFlag,
-    required this.teamBFlag,
     this.onTap,
   });
 
@@ -838,8 +867,6 @@ class _UpcomingCard extends StatelessWidget {
   final String teamA;
   final String teamB;
   final String subtitle;
-  final String teamAFlag;
-  final String teamBFlag;
   final VoidCallback? onTap;
 
   @override
@@ -871,7 +898,7 @@ class _UpcomingCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _FlagCircle(assetPath: teamAFlag),
+                    _TeamInitialCircle(name: teamA),
                     const SizedBox(width: 8),
                     Text(
                       teamA,
@@ -898,7 +925,7 @@ class _UpcomingCard extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(width: 8),
-                    _FlagCircle(assetPath: teamBFlag),
+                    _TeamInitialCircle(name: teamB),
                   ],
                 ),
               ],
@@ -914,59 +941,165 @@ class _UpcomingCard extends StatelessWidget {
   }
 }
 
-class _FlagCircle extends StatelessWidget {
-  const _FlagCircle({required this.assetPath});
-
-  final String assetPath;
+class _TeamInitialCircle extends StatelessWidget {
+  const _TeamInitialCircle({required this.name});
+  final String name;
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
-      child: SizedBox(
-        width: 20,
-        height: 20,
-        child: Image.asset(
-          assetPath,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppPalette.progress,
+        border: Border.all(color: const Color(0x1AFFFFFF)),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 11,
         ),
       ),
     );
   }
 }
 
+
+
 class _RecentResultsSection extends StatelessWidget {
   const _RecentResultsSection();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Recent Results',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppPalette.textPrimary,
-                fontWeight: FontWeight.w700,
+    return FutureBuilder<List<_RecentResult>>(
+      future: _loadRecentResults(),
+      builder: (context, snapshot) {
+        final results = snapshot.data ?? [];
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 80,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+          );
+        }
+        if (results.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Recent Results',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: AppPalette.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () =>
+                      Navigator.push(context, AppRoutes.buildResultsRoute()),
+                  child: const Text('View All'),
+                ),
+              ],
+            ),
+            ...results.take(3).map((r) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _ResultCard(
+                lineOne: r.lineOne,
+                lineTwo: r.lineTwo,
+                when: r.when,
+                outcome: r.outcome,
               ),
-        ),
-        const SizedBox(height: 12),
-        const _ResultCard(
-          lineOne: 'SL 210/10 (48.2)',
-          lineTwo: 'BAN 211/4 (44.5)',
-          when: 'Yesterday',
-          outcome: 'Bangladesh won by 6 wkts',
-        ),
-        const SizedBox(height: 12),
-        const _ResultCard(
-          lineOne: 'WI 189/2 (18.4)',
-          lineTwo: 'AFG 188/8 (20.0)',
-          when: '22 May',
-          outcome: 'West Indies won by 8 wkts',
-        ),
-      ],
+            )),
+          ],
+        );
+      },
     );
   }
+
+  static Future<List<_RecentResult>> _loadRecentResults() async {
+    final matches = await MatchService.getCompletedMatches();
+    final recent = matches.take(3).toList();
+    final results = <_RecentResult>[];
+    for (final match in recent) {
+      try {
+        final liveScore = await MatchService.getLiveScore(match.id);
+        final summary = liveScore['summary'] as ScoreSummary?;
+        if (summary == null) continue;
+
+        final firstInnings = summary.firstInnings;
+        final firstTeam = firstInnings?['batting_team'] as String? ?? match.teamAId;
+        final firstRuns = firstInnings?['runs']?.toString() ?? '?';
+        final firstWickets = firstInnings?['wickets']?.toString() ?? '?';
+        final firstOvers = firstInnings?['overs']?.toString() ?? '?';
+
+        final secondTeam = summary.battingTeam ?? match.teamBId;
+        final secondRuns = summary.runs;
+        final secondWickets = summary.wickets;
+        final secondOvers = summary.overs;
+
+        final target = int.tryParse(summary.target ?? '');
+        final runs2 = int.tryParse(secondRuns) ?? 0;
+        String outcome;
+        if (target != null && target > 0 && runs2 >= target) {
+          final squadSize = summary.squadSize != null ? summary.squadSize! - 1 : 10;
+          final remaining = squadSize - (int.tryParse(secondWickets) ?? 0);
+          outcome = '$secondTeam won by $remaining wkts';
+        } else if (target != null && target > 0) {
+          final margin = target - runs2 - 1;
+          outcome = '$firstTeam won by $margin runs';
+        } else {
+          outcome = 'Match completed';
+        }
+
+        final whenStr = match.matchDate != null
+            ? _formatWhen(match.matchDate!)
+            : '';
+
+        results.add(_RecentResult(
+          lineOne: '$firstTeam $firstRuns/$firstWickets ($firstOvers)',
+          lineTwo: '$secondTeam $secondRuns/$secondWickets ($secondOvers)',
+          when: whenStr,
+          outcome: outcome,
+        ));
+      } catch (_) {
+        // Skip matches without live score data
+      }
+    }
+    return results;
+  }
+
+  static String _formatWhen(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date).inDays;
+    if (diff == 0) return 'Today';
+    if (diff == 1) return 'Yesterday';
+    if (diff < 7) return '$diff days ago';
+    final months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${date.day} ${months[date.month]}';
+  }
+}
+
+class _RecentResult {
+  final String lineOne;
+  final String lineTwo;
+  final String when;
+  final String outcome;
+  const _RecentResult({
+    required this.lineOne,
+    required this.lineTwo,
+    required this.when,
+    required this.outcome,
+  });
 }
 
 class _ResultCard extends StatelessWidget {

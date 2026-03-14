@@ -932,6 +932,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     int? dismissedBatsmanIndex,
     bool creditWicketToBowler = true,
     String? dismissalType,
+    int batsmanRunsOnExtra = 0,
   }) {
     // For legal balls, respect overs limit and innings transitions.
     if (isLegal && !_canBowlNextLegalBall) {
@@ -1005,6 +1006,35 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         _partnershipBalls += 1;
       }
 
+      // Credit batsman for runs scored off extras (NB)
+      if (!isLegal && batsmanRunsOnExtra > 0 &&
+          _strikerIndex >= 0 &&
+          _strikerIndex < _battingTeamPlayers.length) {
+        final striker = _battingTeamPlayers[_strikerIndex];
+        if (!_playerStats.containsKey(striker.id)) {
+          _playerStats[striker.id] = {
+            'runs': 0, 'balls': 0, 'fours': 0, 'sixes': 0,
+            'sr': '0.0', 'out': false
+          };
+        }
+        _playerStats[striker.id]!['runs'] =
+            (_playerStats[striker.id]!['runs'] as int) + batsmanRunsOnExtra;
+        if (batsmanRunsOnExtra == 4) {
+          _playerStats[striker.id]!['fours'] =
+              (_playerStats[striker.id]!['fours'] as int) + 1;
+        } else if (batsmanRunsOnExtra == 6) {
+          _playerStats[striker.id]!['sixes'] =
+              (_playerStats[striker.id]!['sixes'] as int) + 1;
+        }
+        // Recalculate SR
+        final balls = _playerStats[striker.id]!['balls'] as int;
+        final runs = _playerStats[striker.id]!['runs'] as int;
+        if (balls > 0) {
+          _playerStats[striker.id]!['sr'] =
+              ((runs / balls) * 100).toStringAsFixed(2);
+        }
+      }
+
       // Update bowler stats
       if (isLegal &&
           _bowlerIndex >= 0 &&
@@ -1057,6 +1087,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         _partnershipBalls = 0;
         _bringNextBatterIn(dismissedBatsmanIndex);
       } else if (!isWicket && isLegal && runDelta.isOdd) {
+        _switchStrike();
+      } else if (!isWicket && !isLegal && batsmanRunsOnExtra.isOdd) {
+        // NB with odd batsman runs (e.g. NB+1, NB+3): swap strike
         _switchStrike();
       }
 
@@ -1302,11 +1335,110 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
   void _addExtra(String type) {
     if (!_canProcessTap) return;
+    if (type == 'NB') {
+      _showNoBallPopup();
+      return;
+    }
     final isLegal = type == 'LB' || type == 'B';
     _applyBall(
       label: type,
       runDelta: 1,
       isLegal: isLegal,
+    );
+    HapticFeedback.selectionClick();
+  }
+
+  void _showNoBallPopup() {
+    showDialog(
+      context: context,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                  color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('NO BALL',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 22,
+                        letterSpacing: 1.5)),
+                const SizedBox(height: 8),
+                const Text('Runs scored off the bat?',
+                    style: TextStyle(color: AppPalette.textMuted, fontSize: 14)),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  alignment: WrapAlignment.center,
+                  children: [0, 1, 2, 3, 4, 6].map((r) {
+                    final isBoundary = r == 4 || r == 6;
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        _applyNoBall(r);
+                      },
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isBoundary
+                              ? AppPalette.accent.withAlpha((0.15 * 255).toInt())
+                              : AppPalette.bgSecondary,
+                          border: Border.all(
+                            color: isBoundary
+                                ? AppPalette.accent
+                                : AppPalette.cardStroke,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          r == 0 ? '•' : r.toString(),
+                          style: TextStyle(
+                            color: isBoundary ? AppPalette.accent : Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: r == 0 ? 24 : 20,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('CANCEL',
+                      style: TextStyle(
+                          color: AppPalette.textMuted,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _applyNoBall(int batsmanRuns) {
+    // Total runs = 1 (NB penalty) + batsman runs
+    final totalRuns = 1 + batsmanRuns;
+    final label = batsmanRuns == 0 ? 'NB' : 'NB+$batsmanRuns';
+    _applyBall(
+      label: label,
+      runDelta: totalRuns,
+      isLegal: false,
+      batsmanRunsOnExtra: batsmanRuns,
     );
     HapticFeedback.selectionClick();
   }
