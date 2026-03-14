@@ -523,10 +523,18 @@ class _ToggleCard extends StatelessWidget {
               HapticFeedback.selectionClick();
               onChanged(v);
             },
-            activeThumbColor: AppPalette.accent,
-            activeTrackColor: AppPalette.accent.withValues(alpha: 0.2),
-            inactiveThumbColor: _Tokens.muted,
-            inactiveTrackColor: _Tokens.surface3,
+            thumbColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppPalette.accent;
+              }
+              return _Tokens.muted;
+            }),
+            trackColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppPalette.accent.withValues(alpha: 0.2);
+              }
+              return _Tokens.surface3;
+            }),
           ),
         ],
       ),

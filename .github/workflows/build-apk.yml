@@ -47,31 +47,44 @@ jobs:
       # Flutter's Android build needs Java (the Android SDK is Java-based).
       # We use Java 17 (LTS) with the Temurin distribution — same as used by
       # most Android CI setups.
+      # `cache: gradle` tells setup-java to cache the Gradle wrapper and
+      # downloaded Gradle files between runs — this alone saves 2-3 minutes.
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle   # ← caches ~/.gradle between runs
 
       # STEP 3 ── Set up Flutter
-      # Installs a specific Flutter version so every build is reproducible —
-      # no surprises if the Flutter team ships a breaking change.
-      # "stable" always pulls the latest stable release.
+      # Installs a specific Flutter version so every build is reproducible.
+      # `cache: true` caches the entire Flutter SDK (~600 MB) between runs.
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.29.0"
           channel: stable
-          cache: true   # caches the Flutter SDK between runs → faster builds
+          cache: true
 
-      # STEP 4 ── Get dependencies
-      # Equivalent to running `flutter pub get` locally.
-      # Downloads every package listed in pubspec.yaml into the build machine.
+      # STEP 4 ── Cache pub packages
+      # Caches ~/.pub-cache keyed on pubspec.lock.
+      # If pubspec.lock hasn't changed, packages are restored instantly
+      # instead of re-downloaded from pub.dev.
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+
+      # STEP 5 ── Get dependencies
+      # With the pub cache restored above, this is nearly instant on repeat
+      # runs — it just re-links already-cached packages.
       - name: Install Flutter dependencies
         working-directory: app
         run: flutter pub get
 
-      # STEP 5 ── Build the release APK
+      # STEP 6 ── Build the release APK
       # This is the main event.
       # `--release`  → obfuscated, minified, signed with the debug key by default.
       # The output lands at:  app/build/app/outputs/flutter-apk/app-release.apk
@@ -79,7 +92,7 @@ jobs:
         working-directory: app
         run: flutter build apk --release
 
-      # STEP 6 ── Copy APK into the website folder
+      # STEP 7 ── Copy APK into the website folder
       # Your Netlify site (in website/) has a downloads/ folder.
       # The download button in index.html points to:  downloads/CricStatz-latest.apk
       # We overwrite that file with the freshly-built APK.
@@ -87,7 +100,7 @@ jobs:
         run: |
           cp app/build/app/outputs/flutter-apk/app-release.apk website/downloads/CricStatz-latest.apk
 
-      # STEP 7 ── Commit and push the updated APK back to the repo
+      # STEP 8 ── Commit and push the updated APK back to the repo
       # After we copied the file, git sees a changed binary.
       # We configure a bot identity, stage just the APK file, and push.
       #
