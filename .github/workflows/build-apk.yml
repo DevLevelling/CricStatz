@@ -1,0 +1,107 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS WORKFLOW DOES
+#
+# Every time you push to the `main` branch, GitHub's servers will:
+#   1. Spin up a fresh Ubuntu machine
+#   2. Download your code
+#   3. Install Java (required by Android's build tools)
+#   4. Install Flutter
+#   5. Build the release APK
+#   6. Copy it into website/downloads/  (where your Netlify download button points)
+#   7. Commit and push that APK back to the repo
+#
+# Netlify watches the repo and re-deploys automatically when it sees a new commit,
+# so your website's download link will always serve the freshest APK.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Build & Publish APK
+
+# ── TRIGGER ──────────────────────────────────────────────────────────────────
+# "on" tells GitHub WHEN to run this workflow.
+# We run it on every push to the `main` branch.
+# Pushes to feature branches are ignored so you don't waste build minutes on WIP.
+on:
+  push:
+    branches:
+      - main
+
+# ── JOBS ─────────────────────────────────────────────────────────────────────
+# A workflow can have many parallel "jobs". We only need one here: `build`.
+jobs:
+  build:
+    # The type of machine GitHub will rent for us.
+    # ubuntu-latest is free-tier eligible and has Android build tools ready to install.
+    runs-on: ubuntu-latest
+
+    # ── STEPS ──────────────────────────────────────────────────────────────
+    # Steps run sequentially, top to bottom, inside the same machine.
+    steps:
+
+      # STEP 1 ── Check out the code
+      # Downloads your whole repo onto the GitHub machine.
+      # "actions/checkout" is an official action maintained by GitHub.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # STEP 2 ── Set up Java
+      # Flutter's Android build needs Java (the Android SDK is Java-based).
+      # We use Java 17 (LTS) with the Temurin distribution — same as used by
+      # most Android CI setups.
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # STEP 3 ── Set up Flutter
+      # Installs a specific Flutter version so every build is reproducible —
+      # no surprises if the Flutter team ships a breaking change.
+      # "stable" always pulls the latest stable release.
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.29.0"
+          channel: stable
+          cache: true   # caches the Flutter SDK between runs → faster builds
+
+      # STEP 4 ── Get dependencies
+      # Equivalent to running `flutter pub get` locally.
+      # Downloads every package listed in pubspec.yaml into the build machine.
+      - name: Install Flutter dependencies
+        working-directory: app
+        run: flutter pub get
+
+      # STEP 5 ── Build the release APK
+      # This is the main event.
+      # `--release`  → obfuscated, minified, signed with the debug key by default.
+      # The output lands at:  app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Build release APK
+        working-directory: app
+        run: flutter build apk --release
+
+      # STEP 6 ── Copy APK into the website folder
+      # Your Netlify site (in website/) has a downloads/ folder.
+      # The download button in index.html points to:  downloads/CricStatz-latest.apk
+      # We overwrite that file with the freshly-built APK.
+      - name: Copy APK to website/downloads
+        run: |
+          cp app/build/app/outputs/flutter-apk/app-release.apk website/downloads/CricStatz-latest.apk
+
+      # STEP 7 ── Commit and push the updated APK back to the repo
+      # After we copied the file, git sees a changed binary.
+      # We configure a bot identity, stage just the APK file, and push.
+      #
+      # The `if` guard skips this step when nothing actually changed
+      # (e.g., the build produced an identical APK — rare but possible).
+      #
+      # `GITHUB_TOKEN` is a secret GitHub injects automatically into every
+      # workflow run — you don't need to create it.
+      - name: Commit and push updated APK
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/downloads/CricStatz-latest.apk
+          git diff --cached --quiet || git commit -m "chore: update release APK [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
