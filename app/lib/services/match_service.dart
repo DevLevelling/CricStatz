@@ -57,7 +57,7 @@ class MatchService {
         .from('matches')
         .select()
         .eq('status', 'upcoming')
-        .order('match_date', ascending: false);
+        .order('created_at', ascending: false);
 
     final upcomingMatches =
         (data as List).map((e) => Match.fromJson(e)).toList();
@@ -120,8 +120,8 @@ class MatchService {
 
     final matches = merged.values.toList()
       ..sort((a, b) {
-        final aDate = a.matchDate ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final bDate = b.matchDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final aDate = a.createdAt ?? a.matchDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate = b.createdAt ?? b.matchDate ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bDate.compareTo(aDate);
       });
 
@@ -133,7 +133,7 @@ class MatchService {
         .from('matches')
         .select()
         .eq('status', 'completed')
-        .order('match_date', ascending: false);
+        .order('created_at', ascending: false);
 
     return (rows as List).map((e) => Match.fromJson(e)).toList();
   }
