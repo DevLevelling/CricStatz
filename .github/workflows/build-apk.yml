@@ -21,13 +21,15 @@ permissions:
   contents: write
 
 # ── TRIGGER ──────────────────────────────────────────────────────────────────
-# "on" tells GitHub WHEN to run this workflow.
-# We run it on every push to the `main` branch.
-# Pushes to feature branches are ignored so you don't waste build minutes on WIP.
+# Runs on pushes to `main` that touch files inside `app/` or this workflow file.
+# Docs-only, website-only, or design-only changes are skipped to save CI minutes.
 on:
   push:
     branches:
       - main
+    paths:
+      - 'app/**'
+      - '.github/workflows/build-apk.yml'
 
 # ── JOBS ─────────────────────────────────────────────────────────────────────
 # A workflow can have many parallel "jobs". We only need one here: `build`.
