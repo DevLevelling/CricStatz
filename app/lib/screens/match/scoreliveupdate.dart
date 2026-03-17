@@ -1036,8 +1036,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       }
 
       // Update bowler stats
-      if (isLegal &&
-          _bowlerIndex >= 0 &&
+      if (_bowlerIndex >= 0 &&
           _bowlerIndex < _bowlingTeamPlayers.length) {
         final bowler = _bowlingTeamPlayers[_bowlerIndex];
         if (!_playerStats.containsKey(bowler.id)) {
@@ -1054,10 +1053,22 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
             'economy': '0.0'
           };
         }
-        _playerStats[bowler.id]!['balls_bowled'] =
-            (_playerStats[bowler.id]!['balls_bowled'] as int) + 1;
-        _playerStats[bowler.id]!['runs_conceded'] =
-            ((_playerStats[bowler.id]!['runs_conceded'] ?? 0) as int) + runDelta;
+
+        bool addsToBowlerRuns = true;
+        if (label == 'LB' || label == 'B') {
+          addsToBowlerRuns = false; // Byes and Leg Byes do not count against bowler's runs
+        }
+
+        if (isLegal) {
+          _playerStats[bowler.id]!['balls_bowled'] =
+              (_playerStats[bowler.id]!['balls_bowled'] as int) + 1;
+        }
+
+        if (addsToBowlerRuns) {
+          _playerStats[bowler.id]!['runs_conceded'] =
+              ((_playerStats[bowler.id]!['runs_conceded'] ?? 0) as int) + runDelta;
+        }
+
         if (isWicket && creditWicketToBowler) {
           _playerStats[bowler.id]!['wickets'] =
               (_playerStats[bowler.id]!['wickets'] as int) + 1;
