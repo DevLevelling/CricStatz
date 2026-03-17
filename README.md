@@ -37,6 +37,7 @@ CricStatz/
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── DATABASE_SCHEMA.md
+│   ├── RELEASING.md
 │   └── SETUP.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -114,6 +115,21 @@ A custom cricket-themed animation plays when the user clicks the **Download APK*
 | **Phase 1** | ✅ Completed | Full website redesign — 5-section scroll-snap layout, dark/red theme, scroll-reveal animations, initial download button animation |
 | **Phase 2** | 🔄 In Progress | Improved download animation with `appicon.png` bat-swing motion, realistic ball-fly-to-user effect, impact flash (no shake). Added **Team Chats** feature card |
 
+
+## Releases
+
+CricStatz uses [Semantic Versioning](https://semver.org/) and [GitHub Releases](https://github.com/DevLevelling/CricStatz/releases) for APK distribution.
+
+| Change type | Bump | Example |
+|---|---|---|
+| Bug fix / small patch | **patch** (z) | `v0.1.0` → `v0.1.1` |
+| New feature | **minor** (y) | `v0.1.1` → `v0.2.0` |
+| Breaking / production-ready | **major** (x) | `v0.y.z` → `v1.0.0` |
+
+- **Every push to main** → APK auto-published to the `latest` release
+- **Push a version tag** → `git tag v0.2.0 && git push origin v0.2.0` → versioned release created
+
+Full guide: [`docs/RELEASING.md`](docs/RELEASING.md)
 
 ## Contribution Rules
 - Read `CONTRIBUTING.md` before opening a PR
