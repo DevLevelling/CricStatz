@@ -34,14 +34,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
         try {
           final stats = await MatchService.getLiveScore(match.id);
           final summary = stats['summary'] as ScoreSummary?;
+          final updatedAtStr = stats['updated_at'] as String?;
+          final updatedAt = updatedAtStr != null ? DateTime.parse(updatedAtStr) : null;
           return _ResultEntry(
             match: match,
             summary: summary,
+            updatedAt: updatedAt,
           );
         } catch (_) {
           return _ResultEntry(
             match: match,
             summary: null,
+            updatedAt: null,
           );
         }
       }),
@@ -49,8 +53,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
     final grouped = <String, List<_ResultData>>{};
     for (final entry in resultEntries) {
-      final date = entry.match.matchDate ?? DateTime.now();
-      final key = DateFormat('MMMM d, y').format(date);
+      // Use completion time for grouping if available, fallback to scheduled date
+      final sortDate = entry.updatedAt ?? entry.match.matchDate ?? DateTime.now();
+      final key = DateFormat('MMMM d, y').format(sortDate);
       grouped.putIfAbsent(key, () => <_ResultData>[]).add(
             _ResultData.fromEntry(entry),
           );
@@ -62,9 +67,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
     for (final section in sections) {
       section.matches.sort((a, b) {
-        final aDate = a.matchDate ?? DateTime(2000);
-        final bDate = b.matchDate ?? DateTime(2000);
-        return bDate.compareTo(aDate);
+        // Primary sort: Completion time (updatedAt)
+        // Secondary sort: Scheduled matchDate
+        final aSort = a.updatedAt ?? a.matchDate ?? DateTime(2000);
+        final bSort = b.updatedAt ?? b.matchDate ?? DateTime(2000);
+        return bSort.compareTo(aSort);
       });
     }
 
@@ -313,10 +320,12 @@ class _ResultEntry {
   const _ResultEntry({
     required this.match,
     required this.summary,
+    this.updatedAt,
   });
 
   final Match match;
   final ScoreSummary? summary;
+  final DateTime? updatedAt;
 }
 
 class _ResultData {
@@ -332,6 +341,7 @@ class _ResultData {
     required this.scoreB,
     required this.outcome,
     this.matchDate,
+    this.updatedAt,
   });
 
   factory _ResultData.fromEntry(_ResultEntry entry) {
@@ -388,6 +398,7 @@ class _ResultData {
       scoreB: scoreB,
       outcome: outcome,
       matchDate: match.matchDate,
+      updatedAt: entry.updatedAt,
     );
   }
 
@@ -402,6 +413,7 @@ class _ResultData {
   final String scoreB;
   final String outcome;
   final DateTime? matchDate;
+  final DateTime? updatedAt;
 
   static String _resolveFirstBattingTeam(Match match) {
     final teamA = match.teamAId;
