@@ -7,11 +7,12 @@
 #   3. Install Java (required by Android's build tools)
 #   4. Install Flutter
 #   5. Build the release APK
-#   6. Copy it into website/downloads/  (where your Netlify download button points)
-#   7. Commit and push that APK back to the repo
+#   6. Upload the APK to a GitHub Release tagged "latest"
 #
-# Netlify watches the repo and re-deploys automatically when it sees a new commit,
-# so your website's download link will always serve the freshest APK.
+# The website's download button points to the stable GitHub Releases URL:
+#   https://github.com/DevLevelling/CricStatz/releases/latest/download/CricStatz.apk
+#
+# For versioned releases (v1.0.0, v2.1.0, etc.), see release-apk.yml.
 # ─────────────────────────────────────────────────────────────────────────────
 
 name: Build & Publish APK
@@ -45,8 +46,6 @@ jobs:
       # "actions/checkout" is an official action maintained by GitHub.
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       # STEP 2 ── Set up Java
       # Flutter's Android build needs Java (the Android SDK is Java-based).
@@ -97,30 +96,21 @@ jobs:
         working-directory: app
         run: flutter build apk --release
 
-      # STEP 7 ── Copy APK into the website folder
-      # Your Netlify site (in website/) has a downloads/ folder.
-      # The download button in index.html points to:  downloads/CricStatz-latest.apk
-      # We overwrite that file with the freshly-built APK.
-      - name: Copy APK to website/downloads
-        run: |
-          cp app/build/app/outputs/flutter-apk/app-release.apk website/downloads/CricStatz-latest.apk
-
-      # STEP 8 ── Commit and push the updated APK back to the repo
-      # After we copied the file, git sees a changed binary.
-      # We configure a bot identity, stage just the APK file, and push.
+      # STEP 7 ── Upload APK to GitHub Release (rolling "latest")
+      # Creates or updates a release tagged "latest" with the freshly-built APK.
+      # The stable download URL is:
+      #   https://github.com/DevLevelling/CricStatz/releases/latest/download/CricStatz.apk
       #
-      # The `if` guard skips this step when nothing actually changed
-      # (e.g., the build produced an identical APK — rare but possible).
-      #
-      # `GITHUB_TOKEN` is a secret GitHub injects automatically into every
-      # workflow run — you don't need to create it.
-      - name: Commit and push updated APK
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add website/downloads/CricStatz-latest.apk
-          git diff --cached --quiet || git commit -m "chore: update release APK [skip ci]"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          git push origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # `softprops/action-gh-release` handles creating the tag, the release,
+      # and uploading the asset file. If the release already exists it updates it.
+      # `GITHUB_TOKEN` is provided automatically by GitHub Actions.
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Build
+          body: |
+            Automatically updated on every push to main.
+            Built from commit ${{ github.sha }}.
+          make_latest: true
+          files: app/build/app/outputs/flutter-apk/app-release.apk
