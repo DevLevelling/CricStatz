@@ -1640,6 +1640,88 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       return;
     }
 
+    if (type == 'Run Out') {
+      _showRunOutRunsDialog(dismissedIndex);
+      return;
+    }
+
+    _completeWicket(type, dismissedIndex, 0);
+  }
+
+  void _showRunOutRunsDialog(int dismissedIndex) {
+    showDialog(
+      context: context,
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                  color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('RUNS COMPLETED?',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18)),
+                const SizedBox(height: 8),
+                const Text('Before the run out',
+                    style:
+                        TextStyle(color: AppPalette.textMuted, fontSize: 14)),
+                const SizedBox(height: 24),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  alignment: WrapAlignment.center,
+                  children: List.generate(4, (index) {
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        _completeWicket('Run Out', dismissedIndex, index);
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: AppPalette.cardStroke
+                              .withAlpha((0.3 * 255).toInt()),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(index.toString(),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('CANCEL',
+                      style: TextStyle(
+                          color: AppPalette.textMuted,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _completeWicket(String type, int dismissedIndex, int completedRuns) {
     final dismissedPlayer = _battingTeamPlayers[dismissedIndex];
     final creditToBowler = type != 'Run Out';
 
@@ -1653,8 +1735,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     );
 
     _applyBall(
-      label: 'W',
-      runDelta: 0,
+      label: type == 'Run Out' && completedRuns > 0 ? 'W+$completedRuns' : 'W',
+      runDelta: completedRuns,
       isLegal: true,
       isWicket: true,
       dismissedBatsmanIndex: dismissedIndex,
