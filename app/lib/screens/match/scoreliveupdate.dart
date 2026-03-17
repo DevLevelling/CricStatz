@@ -2566,15 +2566,16 @@ class _BallCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isWicket = label == 'W';
-    bool isBoundary = label == '4' || label == '6';
+    bool isWicket = label.startsWith('W');
+    bool isBoundary = label == '4' || label == '6' || label.endsWith('+4') || label.endsWith('+6');
+    bool isLongText = label.length > 2;
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      width: 32,
-      height: 32,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      padding: EdgeInsets.symmetric(horizontal: isLongText ? 6 : 0),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(16),
         color: isWicket
             ? AppPalette.live.withAlpha((0.2 * 255).toInt())
             : (isBoundary
@@ -2593,7 +2594,7 @@ class _BallCircle extends StatelessWidget {
                 ? AppPalette.live
                 : (isBoundary ? AppPalette.accent : Colors.white),
             fontWeight: FontWeight.bold,
-            fontSize: 12,
+            fontSize: isLongText ? 11 : 12,
           ),
         ),
       ),
