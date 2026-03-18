@@ -1036,8 +1036,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       }
 
       // Update bowler stats
-      if (isLegal &&
-          _bowlerIndex >= 0 &&
+      if (_bowlerIndex >= 0 &&
           _bowlerIndex < _bowlingTeamPlayers.length) {
         final bowler = _bowlingTeamPlayers[_bowlerIndex];
         if (!_playerStats.containsKey(bowler.id)) {
@@ -1054,10 +1053,22 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
             'economy': '0.0'
           };
         }
-        _playerStats[bowler.id]!['balls_bowled'] =
-            (_playerStats[bowler.id]!['balls_bowled'] as int) + 1;
-        _playerStats[bowler.id]!['runs_conceded'] =
-            ((_playerStats[bowler.id]!['runs_conceded'] ?? 0) as int) + runDelta;
+
+        bool addsToBowlerRuns = true;
+        if (label == 'LB' || label == 'B') {
+          addsToBowlerRuns = false; // Byes and Leg Byes do not count against bowler's runs
+        }
+
+        if (isLegal) {
+          _playerStats[bowler.id]!['balls_bowled'] =
+              (_playerStats[bowler.id]!['balls_bowled'] as int) + 1;
+        }
+
+        if (addsToBowlerRuns) {
+          _playerStats[bowler.id]!['runs_conceded'] =
+              ((_playerStats[bowler.id]!['runs_conceded'] ?? 0) as int) + runDelta;
+        }
+
         if (isWicket && creditWicketToBowler) {
           _playerStats[bowler.id]!['wickets'] =
               (_playerStats[bowler.id]!['wickets'] as int) + 1;
@@ -2566,15 +2577,16 @@ class _BallCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isWicket = label == 'W';
-    bool isBoundary = label == '4' || label == '6';
+    bool isWicket = label.startsWith('W');
+    bool isBoundary = label == '4' || label == '6' || label.endsWith('+4') || label.endsWith('+6');
+    bool isLongText = label.length > 2;
 
     return Container(
       margin: const EdgeInsets.only(right: 8),
-      width: 32,
-      height: 32,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      padding: EdgeInsets.symmetric(horizontal: isLongText ? 6 : 0),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(16),
         color: isWicket
             ? AppPalette.live.withAlpha((0.2 * 255).toInt())
             : (isBoundary
@@ -2593,7 +2605,7 @@ class _BallCircle extends StatelessWidget {
                 ? AppPalette.live
                 : (isBoundary ? AppPalette.accent : Colors.white),
             fontWeight: FontWeight.bold,
-            fontSize: 12,
+            fontSize: isLongText ? 11 : 12,
           ),
         ),
       ),
