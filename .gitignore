@@ -36,6 +36,9 @@ Thumbs.db
 .env.*
 *.key
 *.jks
+# Exception: commit the shared keystore, but not the password properties file
+!app/android/release.keystore
+app/android/key.properties
 
 # Node / JS
 node_modules/
