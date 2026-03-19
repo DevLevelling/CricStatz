@@ -38,6 +38,7 @@ CricStatz/
 │   ├── ARCHITECTURE.md
 │   ├── DATABASE_SCHEMA.md
 │   ├── RELEASING.md
+│   ├── SIGNING.md
 │   └── SETUP.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -130,6 +131,22 @@ CricStatz uses [Semantic Versioning](https://semver.org/) and [GitHub Releases](
 - **Push a version tag** → `git tag v0.2.0 && git push origin v0.2.0` → versioned release created
 
 Full guide: [`docs/RELEASING.md`](docs/RELEASING.md)
+
+## Keystore & Signing
+
+CricStatz uses a **shared Android keystore** so all team members build APKs signed with the same cryptographic key. This prevents "package conflict" errors when users try to upgrade from an APK signed with a different key.
+
+**What you need to know:**
+- `app/android/release.keystore` — shared keystore file (committed to repo)
+- `app/android/key.properties` — your local password file (created by you, in `.gitignore`)
+- Both must exist to build the APK
+
+**First-time setup:**
+1. Pull the repo: `git pull origin main`
+2. Create `app/android/key.properties` locally with the shared password
+3. Build normally: `flutter build apk --release`
+
+Full guide: [`docs/SIGNING.md`](docs/SIGNING.md)
 
 ## Contribution Rules
 - Read `CONTRIBUTING.md` before opening a PR
