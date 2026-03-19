@@ -39,6 +39,7 @@ CricStatz/
 │   ├── DATABASE_SCHEMA.md
 │   ├── RELEASING.md
 │   ├── SIGNING.md
+│   ├── TROUBLESHOOTING.md
 │   └── SETUP.md
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -147,6 +148,12 @@ CricStatz uses a **shared Android keystore** so all team members build APKs sign
 3. Build normally: `flutter build apk --release`
 
 Full guide: [`docs/SIGNING.md`](docs/SIGNING.md)
+
+## Installation Troubleshooting
+
+Getting an "App not installed" or "package conflicts" error when upgrading? See [`docs/Package_conflict_TROUBLESHOOTING.md`](docs/Package_conflict_TROUBLESHOOTING.md) for solutions.
+
+**TL;DR:** Uninstall the old app (Settings → Apps → CricStatz → Uninstall), restart your phone, then install the new APK. This is a one-time fix.
 
 ## Contribution Rules
 - Read `CONTRIBUTING.md` before opening a PR

@@ -227,3 +227,4 @@ Or if you edited it manually, revert to the version from main.
 - [`app/android/build.gradle`](../app/android/build.gradle) — where the signing config is used
 - [`app/android/release.keystore`](../app/android/release.keystore) — the shared keystore file
 - [`build-apk.yml`](../.github/workflows/build-apk.yml) — how CI handles signing
+- [`docs/TROUBLESHOOTING.md`](TROUBLESHOOTING.md) — fixing "package conflicts" errors during upgrades
