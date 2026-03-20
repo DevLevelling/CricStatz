@@ -495,23 +495,106 @@ class _ResultCard extends StatelessWidget {
                         ),
                   ),
                 ),
-                Text(
-                  data.status,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppPalette.textMuted,
-                        fontSize: 12,
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        data.status,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppPalette.textMuted,
+                              fontSize: 12,
+                            ),
                       ),
-                ),
-                if (matchTime != null) ...[
-                  const SizedBox(width: 8),
-                  Text(
-                    '• $matchTime',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppPalette.textMuted,
-                          fontSize: 12,
+                      if (matchTime != null) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          '• $matchTime',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppPalette.textMuted,
+                                fontSize: 12,
+                              ),
                         ),
+                      ],
+                      // Menu button
+                      PopupMenuButton<String>(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(Icons.more_vert, size: 20),
+                        onSelected: (value) async {
+                          if (value == 'view') {
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.scoreboard,
+                              arguments: data.matchId,
+                            );
+                          } else if (value == 'delete') {
+                            showDialog<void>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Match?'),
+                                content: Text(
+                                  'Delete match: ${data.teamA} vs ${data.teamB}? This action cannot be undone.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      try {
+                                        await MatchService.deleteMatch(data.matchId);
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content:
+                                                  Text('Match deleted successfully'),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Error deleting match: $e',
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'view',
+                            child: Text('View Scorecard'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
             const SizedBox(height: 16),

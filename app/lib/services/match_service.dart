@@ -482,4 +482,11 @@ class MatchService {
         .eq('id', matchId)
         .neq('status', 'completed');
   }
+
+  static Future<void> deleteMatch(String matchId) async {
+    await SupabaseService.client
+        .from('matches')
+        .delete()
+        .eq('id', matchId);
+  }
 }
