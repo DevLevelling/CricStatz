@@ -162,6 +162,11 @@ class _CreateMatchScreenState extends State<CreateMatchScreen>
       );
       return;
     }
+    // Combine date and time into a single DateTime
+    final matchDateTime = _time != null && _date != null
+        ? _date!.add(Duration(hours: _time!.hour, minutes: _time!.minute))
+        : _date;
+
     // Navigate to squad selection
     Navigator.push(
       context,
@@ -171,7 +176,7 @@ class _CreateMatchScreenState extends State<CreateMatchScreen>
           teamBName: _teamBCtrl.text.trim().isEmpty ? 'Team B' : _teamBCtrl.text.trim(),
           venue: _venueCtrl.text.trim().isEmpty ? null : _venueCtrl.text.trim(),
           format: _format,
-          date: _date,
+          date: matchDateTime,
           overs: int.tryParse(_oversCtrl.text) ?? 20,
         ),
       ),
