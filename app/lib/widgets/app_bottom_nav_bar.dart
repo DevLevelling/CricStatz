@@ -22,11 +22,14 @@ class AppBottomNavBar extends StatelessWidget {
           case 0:
             Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (r) => false);
             break;
+          case 1:
+            Navigator.pushNamed(context, AppRoutes.playerStats);
+            break;
           case 4:
             Navigator.pushNamed(context, AppRoutes.profile);
             break;
           default:
-            // Feed, Search, Chats — not yet implemented
+            // Search, Chats — not yet implemented
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Coming soon!'),
@@ -38,7 +41,7 @@ class AppBottomNavBar extends StatelessWidget {
       },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.rss_feed), label: 'Feed'),
+        BottomNavigationBarItem(icon: Icon(Icons.bar_chart_outlined), label: 'Stats'),
         BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
         BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chats'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),

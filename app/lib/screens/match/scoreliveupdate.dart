@@ -1309,7 +1309,10 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
           child: CircularProgressIndicator(color: AppPalette.accent),
         ),
       );
-      MatchService.completeMatch(_match!.id).then((_) {
+      MatchService.completeMatch(_match!.id).then((_) async {
+        if (!mounted) return;
+        // Aggregate player stats after match completion
+        await MatchService.aggregatePlayerStats(_match!.id);
         if (!mounted) return;
         _isTransitionInProgress = false;
         Navigator.pop(context); // close loader

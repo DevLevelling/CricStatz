@@ -9,6 +9,7 @@ import 'package:cricstatz/screens/match/toss_screen.dart';
 import 'package:cricstatz/screens/match/upcoming_fixtures_screen.dart';
 import 'package:cricstatz/screens/match/scoreliveupdate.dart';
 import 'package:cricstatz/screens/stats/results_screen.dart';
+import 'package:cricstatz/screens/stats/player_stats_screen.dart';
 import 'package:cricstatz/models/match.dart' as models;
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ class AppRoutes {
   static const String players = '/matches/players';
   static const String liveUpdate = '/matches/live-update';
   static const String results = '/results';
+  static const String playerStats = '/stats/player';
   static const String profile = '/profile';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -65,6 +67,8 @@ class AppRoutes {
         );
       case results:
         return buildResultsRoute();
+      case playerStats:
+        return buildPlayerStatsRoute();
       case profile:
         return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:
@@ -104,6 +108,30 @@ class AppRoutes {
       settings: const RouteSettings(name: upcoming),
       pageBuilder: (context, animation, secondaryAnimation) =>
           const UpcomingFixturesScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const curve = Curves.easeOutCubic;
+        final curved = CurvedAnimation(parent: animation, curve: curve);
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.04, 0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 280),
+    );
+  }
+
+  /// Smooth transition to PlayerStatsScreen (fade + slight slide).
+  static Route<void> buildPlayerStatsRoute() {
+    return PageRouteBuilder<void>(
+      settings: const RouteSettings(name: playerStats),
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const PlayerStatsScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         const curve = Curves.easeOutCubic;
         final curved = CurvedAnimation(parent: animation, curve: curve);
