@@ -566,15 +566,31 @@ class MatchService {
       final format = matchRow['match_format']?.toString();
 
       final profiles =
-          await SupabaseService.client.from('profiles').select('id, display_name');
+          await SupabaseService.client.from('profiles').select('id, display_name, username');
       final nameToUserId = <String, String>{};
+      final normalizedNameToUserId = <String, String>{};
       for (final raw in (profiles as List)) {
         final row = raw as Map<String, dynamic>;
         final id = row['id']?.toString();
-        final name = row['display_name']?.toString().trim();
-        if (id != null && id.isNotEmpty && name != null && name.isNotEmpty) {
-          nameToUserId[name] = id;
+        if (id == null || id.isEmpty) continue;
+
+        final displayName = row['display_name']?.toString().trim();
+        if (displayName != null && displayName.isNotEmpty) {
+          nameToUserId[displayName] = id;
+          normalizedNameToUserId[displayName.toLowerCase()] = id;
         }
+
+        final username = row['username']?.toString().trim();
+        if (username != null && username.isNotEmpty) {
+          nameToUserId[username] = id;
+          normalizedNameToUserId[username.toLowerCase()] = id;
+        }
+      }
+
+      String? resolveUserId(String? playerName) {
+        if (playerName == null || playerName.trim().isEmpty) return null;
+        final trimmed = playerName.trim();
+        return nameToUserId[trimmed] ?? normalizedNameToUserId[trimmed.toLowerCase()];
       }
 
       final statsToInsert = <Map<String, dynamic>>[];
@@ -587,7 +603,7 @@ class MatchService {
           if (batter is! Map<String, dynamic>) continue;
           final name = batter['name']?.toString();
           if (name == null || name.isEmpty) continue;
-          final userId = nameToUserId[name];
+          final userId = resolveUserId(name);
           if (userId == null) {
             _logger.w('Player "$name" not found in profiles');
             continue;
@@ -636,7 +652,7 @@ class MatchService {
           if (bowler is! Map<String, dynamic>) continue;
           final name = bowler['name']?.toString();
           if (name == null || name.isEmpty) continue;
-          final userId = nameToUserId[name];
+          final userId = resolveUserId(name);
           if (userId == null) {
             _logger.w('Bowler "$name" not found in profiles');
             continue;

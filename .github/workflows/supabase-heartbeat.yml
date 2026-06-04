@@ -1,0 +1,40 @@
+name: Supabase Heartbeat
+
+on:
+  schedule:
+    # Twice per week at 04:17 UTC on Monday and Thursday.
+    - cron: "17 4 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  heartbeat:
+    name: Read app_metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Query Supabase heartbeat table
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "SUPABASE_URL and SUPABASE_ANON_KEY GitHub Secrets are required."
+            exit 1
+          fi
+
+          HEARTBEAT_URL="${SUPABASE_URL%/}/rest/v1/app_metrics?select=key_name&key_name=eq.total_downloads&limit=1"
+
+          curl --fail --silent --show-error \
+            --request GET \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            --header "Accept: application/json" \
+            "${HEARTBEAT_URL}" \
+            --output /tmp/supabase-heartbeat.json
+
+          echo "Supabase heartbeat read completed."
