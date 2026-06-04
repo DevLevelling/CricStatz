@@ -133,6 +133,12 @@ CricStatz uses [Semantic Versioning](https://semver.org/) and [GitHub Releases](
 
 Full guide: [`docs/RELEASING.md`](docs/RELEASING.md)
 
+## Supabase Heartbeat
+
+CricStatz includes a scheduled GitHub Actions heartbeat that performs a tiny read-only Supabase query twice per week to help keep the free-tier project active during quiet periods.
+
+Setup and security notes: [`docs/SUPABASE_HEARTBEAT.md`](docs/SUPABASE_HEARTBEAT.md)
+
 ## Keystore & Signing
 
 CricStatz uses a **shared Android keystore** so all team members build APKs signed with the same cryptographic key. This prevents "package conflict" errors when users try to upgrade from an APK signed with a different key.
