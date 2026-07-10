@@ -534,7 +534,7 @@ class _LiveMatchCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  match.matchFormat?.toUpperCase() ?? "ICC MEN'S WORLD CUP",
+                  match.matchFormat?.toUpperCase() ?? 'MATCH',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: Colors.white,
                         letterSpacing: 0.8,
@@ -566,7 +566,6 @@ class _LiveMatchCard extends StatelessWidget {
               _TeamBadge(
                 flag: match.teamBId,
                 assetPath: AppAssets.flagAus,
-                faded: false,
               ),
             ],
           ),
@@ -654,12 +653,10 @@ class _LiveMatchCard extends StatelessWidget {
 }
 
 class _TeamBadge extends StatelessWidget {
-  const _TeamBadge(
-      {required this.flag, required this.assetPath, this.faded = false});
+  const _TeamBadge({required this.flag, required this.assetPath});
 
   final String flag;
   final String assetPath;
-  final bool faded;
 
   @override
   Widget build(BuildContext context) {

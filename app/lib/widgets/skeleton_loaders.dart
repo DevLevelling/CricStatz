@@ -16,7 +16,6 @@ class SkeletonLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
     final baseColor = AppPalette.cardPrimary;
     final highlightColor = AppPalette.cardStroke;
 
@@ -27,7 +26,7 @@ class SkeletonLoader extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: baseColor,
           borderRadius: borderRadius ?? BorderRadius.circular(8),
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:cricstatz/config/assets.dart';
-import 'package:cricstatz/config/palette.dart';
 import 'package:flutter/material.dart';
 
 /// Shared app header with centered logo. [trailing] customizes the right-side content.

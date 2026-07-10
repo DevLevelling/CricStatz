@@ -358,8 +358,8 @@ class _ScoreBanner extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 '${summary.runs}/${summary.wickets}',
-                                style: const TextStyle(
-                                  color: Colors.white,
+                                style: TextStyle(
+                                  color: AppPalette.textPrimary,
                                   fontSize: 40,
                                   fontWeight: FontWeight.w900,
                                   height: 1.1,
@@ -426,8 +426,8 @@ class _ScoreBanner extends StatelessWidget {
                                 Text(
                                   summary.summaryText!,
                                   textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: AppPalette.textPrimary,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     fontStyle: FontStyle.italic,
@@ -459,10 +459,10 @@ class _ScoreBanner extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 '---', // Could be fetched
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: AppPalette.textPrimary,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
                                 ),
@@ -611,8 +611,8 @@ class _PartnershipCard extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '${partnership.runs} ',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: AppPalette.textPrimary,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
@@ -701,8 +701,8 @@ class _BatsmanCard extends StatelessWidget {
                   children: [
                     Text(
                       score.runs,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppPalette.textPrimary,
                         fontSize: 26,
                         fontWeight: FontWeight.w900,
                       ),
@@ -780,8 +780,8 @@ class _BowlerCard extends StatelessWidget {
                 children: [
                   Text(
                     bowler.name,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: AppPalette.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
@@ -846,7 +846,7 @@ class _BallChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: isHighlight ? AppColors.primary : Colors.white,
+            color: isHighlight ? AppColors.primary : AppPalette.textPrimary,
             fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
@@ -974,7 +974,7 @@ class _OverRow extends StatelessWidget {
                     break;
                   case BallType.normal:
                     bgColor = AppColors.slate800;
-                    textColor = Colors.white;
+                    textColor = AppPalette.textPrimary;
                     break;
                 }
 

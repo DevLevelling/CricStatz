@@ -8,7 +8,6 @@ import 'dart:ui';
 
 Color get _playersBg => AppPalette.bgPrimary;
 Color get _playersStroke => AppPalette.cardStroke;
-Color get _playersSegBg => AppPalette.cardPrimary;
 
 class MatchPlayersScreen extends StatefulWidget {
   final String? matchId;
@@ -51,28 +50,10 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
     }
   }
 
-  // Figma (142:2940) image assets (valid for limited time).
-  static const _imgRohit =
-      'https://www.figma.com/api/mcp/asset/e124ba8f-b061-4c32-b980-5723e81fc373';
-  static const _imgRahul =
-      'https://www.figma.com/api/mcp/asset/b8551dcd-78b5-4a9b-8c49-8baf8b7e1437';
-  static const _imgKohli =
-      'https://www.figma.com/api/mcp/asset/aeaf0171-6bf1-44e4-a3b2-cb1695587eed';
-  static const _imgShami =
-      'https://www.figma.com/api/mcp/asset/6b6a41ce-135e-4546-bf44-7002e0c8fd75';
-  static const _imgBumrah =
-      'https://www.figma.com/api/mcp/asset/9f365f95-63c7-4add-9d81-e9713fb207d0';
-  static const _imgIshan =
-      'https://www.figma.com/api/mcp/asset/979a5c18-a907-40c9-bc96-e873df8c47cd';
-  static const _imgAshwin =
-      'https://www.figma.com/api/mcp/asset/108bd2d1-159a-4127-b28d-212bef3826c8';
-  static const _imgPrasidh =
-      'https://www.figma.com/api/mcp/asset/9a6d3c27-3c1e-410a-807c-5491c95bc322';
 
   static Color get _bg => AppPalette.bgPrimary;
   static Color get _segBg => AppPalette.cardPrimary;
   static Color get _segSelected => AppPalette.accent;
-  static Color get _segUnselectedText => AppPalette.textMuted;
 
   @override
   Widget build(BuildContext context) {
@@ -404,8 +385,8 @@ class _PlayerRowData {
   final String stat;
   final String subStat;
   final String? badge;
-  final Color badgeBg;
-  final Color badgeFg;
+  final Color badgeBg = const Color(0x00000000);
+  final Color badgeFg = Colors.white;
   final String imageUrl;
 
   const _PlayerRowData({
@@ -414,8 +395,6 @@ class _PlayerRowData {
     required this.stat,
     required this.subStat,
     required this.badge,
-    this.badgeBg = const Color(0x00000000),
-    this.badgeFg = Colors.white,
     required this.imageUrl,
   });
 }

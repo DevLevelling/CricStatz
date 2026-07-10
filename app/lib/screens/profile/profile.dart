@@ -13,7 +13,7 @@ String _formatRole(String role) {
 }
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -741,7 +741,7 @@ class _SunMoonThemeSwitch extends StatelessWidget {
         height: 32,
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF303136) : const Color(0xFFF4F4F5),
+          color: isDark ? AppPalette.cardPrimary : AppPalette.bgSecondary,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Stack(
@@ -755,9 +755,9 @@ class _SunMoonThemeSwitch extends StatelessWidget {
                   ? Container(
                       width: 24,
                       height: 24,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Color(0xFF303136),
+                        color: AppPalette.cardPrimary,
                       ),
                       child: const CustomPaint(
                         painter: _MoonPainter(),

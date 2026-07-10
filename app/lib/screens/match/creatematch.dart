@@ -127,7 +127,7 @@ class _CreateMatchScreenState extends State<CreateMatchScreen>
         data: ThemeData.light().copyWith(
           colorScheme: ColorScheme.light(
             primary: AppPalette.accent,
-            onPrimary: AppPalette.textPrimary,
+            onPrimary: Colors.white,
             surface: AppPalette.cardPrimary,
             onSurface: AppPalette.textPrimary,
           ),
@@ -694,7 +694,7 @@ class _FormatPicker extends StatelessWidget {
                     onSelect(label);
                   },
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     height: 68,
                     decoration: BoxDecoration(
                       color: sel

@@ -16,8 +16,6 @@ class MatchScoreboardScreen extends StatefulWidget {
 
   static Color get _card => AppPalette.cardPrimary;
   static Color get _stroke => AppPalette.cardStroke;
-  static Color get _headerOverlay => AppPalette.bgPrimary;
-  static Color get _rowOverlay => AppPalette.cardPrimary;
   static Color get _accentBlue => AppPalette.accent;
 }
 

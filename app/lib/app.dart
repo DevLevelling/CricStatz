@@ -1,5 +1,4 @@
 import 'package:cricstatz/config/routes.dart';
-import 'package:cricstatz/config/theme.dart';
 import 'package:cricstatz/providers/auth_provider.dart';
 import 'package:cricstatz/providers/match_provider.dart';
 import 'package:cricstatz/providers/scoring_provider.dart';
