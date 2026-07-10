@@ -8,11 +8,11 @@ import 'upcoming_fixtures_screen.dart';
 // DESIGN TOKENS
 // ─────────────────────────────────────────────────────────────────────────────
 class _Tokens {
-  static const Color surface1 = Color(0xFF0B1829);
-  static const Color surface2 = Color(0xFF0F2040);
-  static const Color surface3 = Color(0xFF162A4D);
-  static const Color border = Color(0xFF1E3055);
-  static const Color muted = Color(0xFF64748B);
+  static Color get surface1 => AppPalette.bgPrimary;
+  static Color get surface2 => AppPalette.cardPrimary;
+  static Color get surface3 => AppPalette.bgPrimary;
+  static Color get border => AppPalette.cardStroke;
+  static Color get muted => AppPalette.textMuted;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ class _ScoringSetupScreenState extends State<ScoringSetupScreen> with SingleTick
               )
             ],
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CircularProgressIndicator(color: AppPalette.accent),
@@ -277,11 +277,11 @@ class _Header extends StatelessWidget {
           // Back button
           Material(
             color: _Tokens.surface2,
-            shape: const CircleBorder(),
+            shape: CircleBorder(),
             child: InkWell(
               onTap: () => Navigator.maybePop(context),
-              customBorder: const CircleBorder(),
-              child: const Padding(
+              customBorder: CircleBorder(),
+              child: Padding(
                 padding: EdgeInsets.all(12),
                 child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: AppPalette.textPrimary),
               ),
@@ -295,7 +295,7 @@ class _Header extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'Scoring Setup',
                       style: TextStyle(
                         fontSize: 20,
@@ -357,14 +357,14 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 0, 14),
+      padding: EdgeInsets.fromLTRB(4, 0, 0, 14),
       child: Row(
         children: [
           Icon(icon, color: AppPalette.accent, size: 18),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppPalette.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -408,7 +408,7 @@ class _CounterCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppPalette.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -422,7 +422,7 @@ class _CounterCard extends StatelessWidget {
                 child: Center(
                   child: Text(
                     value.toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppPalette.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -455,9 +455,9 @@ class _RoundButton extends StatelessWidget {
           HapticFeedback.selectionClick();
           onTap();
         },
-        customBorder: const CircleBorder(),
+        customBorder: CircleBorder(),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Icon(icon, color: AppPalette.accent, size: 18),
         ),
       ),
@@ -481,7 +481,7 @@ class _ToggleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: value ? AppPalette.accent.withValues(alpha: 0.1) : _Tokens.surface2,
         borderRadius: BorderRadius.circular(14),
@@ -559,7 +559,7 @@ class _BottomCtaState extends State<_BottomCta> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _Tokens.surface1,
         border: Border(top: BorderSide(color: _Tokens.border, width: 1)),
       ),
@@ -583,8 +583,8 @@ class _BottomCtaState extends State<_BottomCta> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: _pressed
-                        ? [const Color(0xFF0080BB), const Color(0xFF004FAA)]
-                        : [const Color(0xFF00B4E8), const Color(0xFF0063D8)],
+                        ? [AppPalette.accent.withValues(alpha: 0.7), AppPalette.accent.withValues(alpha: 0.5)]
+                        : [AppPalette.accent, AppPalette.accent.withValues(alpha: 0.8)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -689,7 +689,7 @@ class _Step extends StatelessWidget {
                 ? AppPalette.accent.withValues(alpha: 0.15)
                 : isDone
                     ? AppPalette.success.withValues(alpha: 0.1)
-                    : const Color(0xFF1A2A40),
+                    : AppPalette.cardPrimary,
             border: Border.all(color: dotColor, width: isActive ? 2 : 1.5),
             boxShadow: isActive
                 ? [BoxShadow(color: AppPalette.accent.withValues(alpha: 0.4), blurRadius: 10, spreadRadius: 1)]
@@ -697,7 +697,7 @@ class _Step extends StatelessWidget {
           ),
           child: Center(
             child: isDone
-                ? const Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
+                ? Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
                 : Text(
                     '$index',
                     style: TextStyle(
@@ -708,7 +708,7 @@ class _Step extends StatelessWidget {
                   ),
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         Text(
           label,
           style: TextStyle(
@@ -732,12 +732,12 @@ class _StepConnector extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 1.5,
-        margin: const EdgeInsets.only(bottom: 18, left: 6, right: 6),
+        margin: EdgeInsets.only(bottom: 18, left: 6, right: 6),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: filled
                 ? [AppPalette.success, AppPalette.success.withValues(alpha: 0.5)]
-                : [const Color(0xFF1E3050), const Color(0xFF1E3050)],
+                : [AppPalette.cardStroke, AppPalette.cardStroke],
           ),
         ),
       ),

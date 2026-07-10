@@ -11,6 +11,8 @@ import 'package:cricstatz/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:cricstatz/providers/theme_provider.dart';
+
 class CricStatzApp extends StatelessWidget {
   const CricStatzApp({super.key});
 
@@ -22,13 +24,18 @@ class CricStatzApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TeamProvider()),
         ChangeNotifierProvider(create: (_) => MatchProvider()),
         ChangeNotifierProvider(create: (_) => ScoringProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'CricStatz',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
-        home: const _AuthGate(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            title: 'CricStatz',
+            debugShowCheckedModeBanner: false,
+            theme: themeProvider.currentThemeData,
+            onGenerateRoute: AppRoutes.onGenerateRoute,
+            home: const _AuthGate(),
+          );
+        },
       ),
     );
   }

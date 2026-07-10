@@ -16,9 +16,13 @@ class SkeletonLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final baseColor = AppPalette.cardPrimary;
+    final highlightColor = AppPalette.cardStroke;
+
     return Shimmer.fromColors(
-      baseColor: const Color(0xFF1E293B),
-      highlightColor: const Color(0xFF334155),
+      baseColor: baseColor,
+      highlightColor: highlightColor,
       child: Container(
         width: width,
         height: height,
@@ -39,9 +43,9 @@ class ScoreBannerLoader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0x0DFFFFFF)),
+        border: Border.all(color: AppPalette.cardStroke),
       ),
       child: Column(
         children: [
@@ -62,7 +66,7 @@ class ScoreBannerLoader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          const Divider(color: Color(0x1AFFFFFF)),
+          Divider(color: AppPalette.cardStroke),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -105,7 +109,7 @@ class MatchInfoLoader extends StatelessWidget {
           height: 200,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
+            color: AppPalette.cardPrimary,
             borderRadius: BorderRadius.circular(12),
           ),
           child: const SkeletonLoader(width: double.infinity, height: 200),
@@ -163,34 +167,34 @@ class HomeLiveMatchLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x660A1F43),
-        border: Border.all(color: const Color(0x800A1F43)),
-        borderRadius: BorderRadius.circular(14),
+        color: AppPalette.cardPrimary,
+        border: Border.all(color: AppPalette.cardStroke, width: 1.2),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              SkeletonLoader(width: 100, height: 32),
-              SkeletonLoader(width: 120, height: 32),
+              SkeletonLoader(width: 100, height: 28),
+              SkeletonLoader(width: 120, height: 20),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const [
-              SkeletonLoader(width: 60, height: 60, borderRadius: BorderRadius.all(Radius.circular(30))),
-              SkeletonLoader(width: 120, height: 40),
-              SkeletonLoader(width: 60, height: 60, borderRadius: BorderRadius.all(Radius.circular(30))),
+              SkeletonLoader(width: 58, height: 58, borderRadius: BorderRadius.all(Radius.circular(29))),
+              SkeletonLoader(width: 120, height: 44),
+              SkeletonLoader(width: 58, height: 58, borderRadius: BorderRadius.all(Radius.circular(29))),
             ],
           ),
-          const SizedBox(height: 12),
-          const SkeletonLoader(width: double.infinity, height: 40),
-          const SizedBox(height: 12),
-          const SkeletonLoader(width: double.infinity, height: 44),
+          const SizedBox(height: 16),
+          const SkeletonLoader(width: double.infinity, height: 38),
+          const SizedBox(height: 16),
+          const SkeletonLoader(width: double.infinity, height: 46),
         ],
       ),
     );

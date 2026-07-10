@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -82,13 +82,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: AppPalette.cardPrimary,
                         border: Border.all(color: AppPalette.accent, width: 2),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.sports_cricket,
                         size: 48,
                         color: AppPalette.accent,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Text(
                       'CricStatz',
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -96,23 +96,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontWeight: FontWeight.w800,
                           ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Track your cricket stats',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: AppPalette.textMuted,
                           ),
                     ),
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
 
                     // Email Field
                     TextField(
                       controller: _emailController,
-                      style: const TextStyle(color: AppPalette.textPrimary),
+                      style: TextStyle(color: AppPalette.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'Email',
-                        hintStyle: const TextStyle(color: AppPalette.textSubtle),
-                        prefixIcon: const Icon(Icons.email_outlined, color: AppPalette.accent),
+                        hintStyle: TextStyle(color: AppPalette.textSubtle),
+                        prefixIcon: Icon(Icons.email_outlined, color: AppPalette.accent),
                         filled: true,
                         fillColor: AppPalette.cardPrimary,
                         border: OutlineInputBorder(
@@ -122,17 +122,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
 
                     // Password Field
                     TextField(
                       controller: _passwordController,
                       obscureText: true,
-                      style: const TextStyle(color: AppPalette.textPrimary),
+                      style: TextStyle(color: AppPalette.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'Password',
-                        hintStyle: const TextStyle(color: AppPalette.textSubtle),
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppPalette.accent),
+                        hintStyle: TextStyle(color: AppPalette.textSubtle),
+                        prefixIcon: Icon(Icons.lock_outline, color: AppPalette.accent),
                         filled: true,
                         fillColor: AppPalette.cardPrimary,
                         border: OutlineInputBorder(
@@ -157,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: AppPalette.bgPrimary)
+                            ? CircularProgressIndicator(color: AppPalette.bgPrimary)
                             : Text(
                                 _isSignUp ? 'Create Account' : 'Sign In',
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -173,11 +173,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         _isSignUp
                             ? 'Already have an account? Sign In'
                             : 'Don\'t have an account? Sign Up',
-                        style: const TextStyle(color: AppPalette.accent),
+                        style: TextStyle(color: AppPalette.accent),
                       ),
                     ),
 
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Row(
                         children: [
@@ -209,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppPalette.textPrimary,
-                          side: const BorderSide(color: AppPalette.cardStroke),
+                          side: BorderSide(color: AppPalette.cardStroke),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

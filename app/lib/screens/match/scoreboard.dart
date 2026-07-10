@@ -14,11 +14,11 @@ class MatchScoreboardScreen extends StatefulWidget {
   @override
   State<MatchScoreboardScreen> createState() => _MatchScoreboardScreenState();
 
-  static const Color _card = Color(0xFF0F172A);
-  static const Color _stroke = Color(0xFF1E293B);
-  static const Color _headerOverlay = Color(0x660A1F43);
-  static const Color _rowOverlay = Color(0x330D1729);
-  static const Color _accentBlue = Color(0xFF60A5FA);
+  static Color get _card => AppPalette.cardPrimary;
+  static Color get _stroke => AppPalette.cardStroke;
+  static Color get _headerOverlay => AppPalette.bgPrimary;
+  static Color get _rowOverlay => AppPalette.cardPrimary;
+  static Color get _accentBlue => AppPalette.accent;
 }
 
 class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
@@ -66,7 +66,7 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 24),
@@ -105,7 +105,7 @@ class _MatchScoreboardScreenState extends State<MatchScoreboardScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: MatchScoreboardScreen._stroke),
       ),
-      child: const Center(
+      child: Center(
         child: Text(
           'No scorecard data available yet.\nStart scoring to see the scorecard.',
           textAlign: TextAlign.center,
@@ -233,9 +233,9 @@ class _TopBar extends StatelessWidget {
         child: Container(
           height: 72,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: [
@@ -245,7 +245,7 @@ class _TopBar extends StatelessWidget {
                   AppRoutes.home,
                   (route) => false,
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new,
                   color: AppPalette.textPrimary,
                   size: 20,
@@ -269,7 +269,7 @@ class _TopBar extends StatelessWidget {
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFCBD5E1),
+                            color: AppPalette.textSubtle,
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -278,7 +278,7 @@ class _TopBar extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(
+                icon: Icon(
                   Icons.share_outlined,
                   color: AppPalette.textPrimary,
                   size: 20,
@@ -308,9 +308,9 @@ class _Tabs extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
           height: 51,
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: List.generate(tabs.length, (i) {
@@ -341,7 +341,7 @@ class _Tabs extends StatelessWidget {
                         ),
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     child: Text(
                       tabs[i],
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -386,7 +386,7 @@ class _InningsSummaryBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppPalette.progress,
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0x1AFFFFFF)),
+              border: Border.all(color: AppPalette.cardStroke),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -398,7 +398,7 @@ class _InningsSummaryBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               title,
@@ -451,9 +451,9 @@ class _BattingTable extends StatelessWidget {
     }) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0x801E293B))),
-          color: MatchScoreboardScreen._rowOverlay,
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
+          color: AppPalette.cardPrimary,
         ),
         child: Row(
           children: [
@@ -463,11 +463,11 @@ class _BattingTable extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 18,
-                    backgroundColor: const Color(0xFF1E293B),
+                    backgroundColor: AppPalette.cardStroke,
                     child: Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: AppPalette.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
@@ -486,7 +486,7 @@ class _BattingTable extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                   ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           status,
                           style:
@@ -521,10 +521,10 @@ class _BattingTable extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 9),
-            decoration: const BoxDecoration(
-              color: MatchScoreboardScreen._headerOverlay,
+            decoration: BoxDecoration(
+              color: AppPalette.bgPrimary,
               border: Border(
-                  bottom: BorderSide(color: MatchScoreboardScreen._stroke)),
+                  bottom: BorderSide(color: AppPalette.cardStroke)),
             ),
             child: Row(
               children: [
@@ -582,11 +582,11 @@ class _ExtrasTotal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: BoxDecoration(
-        color: const Color(0x330A1F43),
+        color: AppPalette.cardPrimary,
         border: Border(
-          left: BorderSide(color: MatchScoreboardScreen._stroke),
-          right: BorderSide(color: MatchScoreboardScreen._stroke),
-          bottom: BorderSide(color: MatchScoreboardScreen._stroke),
+          left: BorderSide(color: AppPalette.cardStroke),
+          right: BorderSide(color: AppPalette.cardStroke),
+          bottom: BorderSide(color: AppPalette.cardStroke),
         ),
       ),
       child: Row(
@@ -609,7 +609,7 @@ class _ExtrasTotal extends StatelessWidget {
                 TextSpan(text: '$totalRuns '),
                 TextSpan(
                   text: '($totalWickets wkts, $totalOvers ov)',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppPalette.textMuted,
                     fontWeight: FontWeight.w500,
                     fontSize: 12,
@@ -645,9 +645,9 @@ class _BowlingTable extends StatelessWidget {
         String name, String o, String m, String r, String w, String eco) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0x801E293B))),
-          color: Color(0x330D1729),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: AppPalette.cardStroke)),
+          color: AppPalette.cardPrimary,
         ),
         child: Row(
           children: [
@@ -681,10 +681,10 @@ class _BowlingTable extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 9, 16, 9),
-            decoration: const BoxDecoration(
-              color: MatchScoreboardScreen._headerOverlay,
+            decoration: BoxDecoration(
+              color: AppPalette.bgPrimary,
               border: Border(
-                  bottom: BorderSide(color: MatchScoreboardScreen._stroke)),
+                  bottom: BorderSide(color: AppPalette.cardStroke)),
             ),
             child: Row(
               children: [
@@ -734,8 +734,8 @@ class _PartnershipCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.handshake_outlined, color: AppPalette.textMuted, size: 18),
-          const SizedBox(width: 10),
+          Icon(Icons.handshake_outlined, color: AppPalette.textMuted, size: 18),
+          SizedBox(width: 10),
           Text(
             'Partnership',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -793,7 +793,7 @@ class _TargetCard extends StatelessWidget {
             ],
           ),
           if (summary.summaryText != null && summary.summaryText!.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(

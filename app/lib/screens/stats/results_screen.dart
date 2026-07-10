@@ -87,9 +87,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: AppBottomNavBar(currentIndex: 0),
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -99,7 +99,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   future: _sectionsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(
                           color: AppPalette.accent,
                         ),
@@ -110,7 +110,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       return Center(
                         child: Text(
                           'Failed to load results: ${snapshot.error}',
-                          style: const TextStyle(color: AppPalette.textPrimary),
+                          style: TextStyle(color: AppPalette.textPrimary),
                           textAlign: TextAlign.center,
                         ),
                       );
@@ -118,7 +118,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
                     final sections = snapshot.data ?? const <_ResultSection>[];
                     if (sections.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           'No completed matches found.',
                           style: TextStyle(color: AppPalette.textMuted),
@@ -127,7 +127,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     }
 
                     return ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                      padding: EdgeInsets.fromLTRB(16, 16, 16, 80),
                       children: [
                         for (final section in sections) ...[
                           Text(
@@ -166,8 +166,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xCC111721),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
             border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Column(
@@ -197,7 +197,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Container(
                       width: 40,
                       height: 40,
@@ -238,7 +238,7 @@ class _ResultsQuickTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 51,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -287,7 +287,7 @@ class _TabItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding:
-            const EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
+            EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -460,7 +460,7 @@ class _ResultCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x800F172A),
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.cardStroke),
         boxShadow: [
@@ -481,7 +481,7 @@ class _ResultCard extends StatelessWidget {
               children: [
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppPalette.bgSecondary,
                     borderRadius: BorderRadius.circular(4),
@@ -507,7 +507,7 @@ class _ResultCard extends StatelessWidget {
                             ),
                       ),
                       if (matchTime != null) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Text(
                           '• $matchTime',
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -604,7 +604,7 @@ class _ResultCard extends StatelessWidget {
                   child: Column(
                     children: [
                       _ResultTeamBadge(assetPath: data.teamAFlag),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         data.teamA,
                         style:
@@ -613,7 +613,7 @@ class _ResultCard extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                 ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         data.scoreA,
                         style:
@@ -636,7 +636,7 @@ class _ResultCard extends StatelessWidget {
                   child: Column(
                     children: [
                       _ResultTeamBadge(assetPath: data.teamBFlag),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         data.teamB,
                         style:
@@ -645,7 +645,7 @@ class _ResultCard extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                 ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         data.scoreB,
                         style:
@@ -659,7 +659,7 @@ class _ResultCard extends StatelessWidget {
                 ),
               ],
             ),
-            const Divider(height: 24, color: AppPalette.cardStroke),
+            Divider(height: 24, color: AppPalette.cardStroke),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -690,7 +690,7 @@ class _ResultCard extends StatelessWidget {
                   child: Text(
                     'View Scorecard',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Colors.white,
+                          color: AppPalette.textPrimary,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
@@ -715,15 +715,15 @@ class _ResultTeamBadge extends StatelessWidget {
     return Container(
       width: 48,
       height: 48,
-      decoration: const BoxDecoration(
-        color: Color(0xFF1E293B),
+      decoration: BoxDecoration(
+        color: AppPalette.cardPrimary,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
       child: Image.asset(
         assetPath,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Center(
+        errorBuilder: (_, __, ___) => Center(
           child: Icon(Icons.flag, color: AppPalette.textMuted, size: 24),
         ),
       ),

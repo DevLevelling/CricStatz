@@ -1,4 +1,4 @@
-﻿import 'package:cricstatz/config/palette.dart';
+import 'package:cricstatz/config/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'squads.dart';
@@ -6,23 +6,23 @@ import 'squads.dart';
 // DESIGN TOKENS
 // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _Tokens {
-  static const Color surface1 = Color(0xFF0B1829);
-  static const Color surface2 = Color(0xFF0F2040);
-  static const Color surface3 = Color(0xFF162A4D);
-  static const Color border = Color(0xFF1E3055);
+  static Color get surface1 => AppPalette.bgPrimary;
+  static Color get surface2 => AppPalette.cardPrimary;
+  static Color get surface3 => AppPalette.bgPrimary;
+  static Color get border => AppPalette.cardStroke;
   static const Color teamA = Color(0xFF38BDF8);
   static const Color teamB = Color(0xFFF87171);
   static const Color error = Color(0xFFFF6B6B);
-  static const Color muted = Color(0xFF64748B);
+  static Color get muted => AppPalette.textMuted;
 
-  static const TextStyle labelStyle = TextStyle(
-    color: Color(0xFF94A3B8),
+  static TextStyle get labelStyle => TextStyle(
+    color: AppPalette.textMuted,
     fontSize: 11,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.8,
   );
 
-  static const TextStyle fieldStyle = TextStyle(
+  static TextStyle get fieldStyle => TextStyle(
     color: AppPalette.textPrimary,
     fontSize: 15,
     fontWeight: FontWeight.w500,
@@ -124,14 +124,14 @@ class _CreateMatchScreenState extends State<CreateMatchScreen>
   }
 
   Widget _pickerTheme(BuildContext ctx, Widget? child) => Theme(
-        data: ThemeData.dark().copyWith(
-          colorScheme: const ColorScheme.dark(
+        data: ThemeData.light().copyWith(
+          colorScheme: ColorScheme.light(
             primary: AppPalette.accent,
-            onPrimary: Color(0xFF0B1829),
-            surface: Color(0xFF0F2040),
+            onPrimary: AppPalette.textPrimary,
+            surface: AppPalette.cardPrimary,
             onSurface: AppPalette.textPrimary,
           ),
-          dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF0B1829)),
+          dialogTheme: DialogThemeData(backgroundColor: AppPalette.bgPrimary),
         ),
         child: child!,
       );
@@ -144,11 +144,11 @@ class _CreateMatchScreenState extends State<CreateMatchScreen>
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: const Color(0xFF1A0A0A),
+          backgroundColor: AppPalette.cardPrimary,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          content: const Row(
+          content: Row(
             children: [
               Icon(Icons.error_outline_rounded, color: _Tokens.error, size: 18),
               SizedBox(width: 10),
@@ -347,11 +347,11 @@ class _Header extends StatelessWidget {
           // Back button
           Material(
             color: _Tokens.surface2,
-            shape: const CircleBorder(),
+            shape: CircleBorder(),
             child: InkWell(
               onTap: () => Navigator.maybePop(context),
-              customBorder: const CircleBorder(),
-              child: const Padding(
+              customBorder: CircleBorder(),
+              child: Padding(
                 padding: EdgeInsets.all(12),
                 child: Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: AppPalette.textPrimary),
               ),
@@ -365,7 +365,7 @@ class _Header extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'New Match',
                       style: TextStyle(
                         fontSize: 20,
@@ -470,7 +470,7 @@ class _Step extends StatelessWidget {
                 ? AppPalette.accent.withValues(alpha: 0.15)
                 : isDone
                     ? AppPalette.success.withValues(alpha: 0.1)
-                    : const Color(0xFF1A2A40),
+                    : AppPalette.cardPrimary,
             border: Border.all(color: dotColor, width: isActive ? 2 : 1.5),
             boxShadow: isActive
                 ? [BoxShadow(color: AppPalette.accent.withValues(alpha: 0.4), blurRadius: 10, spreadRadius: 1)]
@@ -478,7 +478,7 @@ class _Step extends StatelessWidget {
           ),
           child: Center(
             child: isDone
-                ? const Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
+                ? Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
                 : Text(
                     '$index',
                     style: TextStyle(
@@ -489,7 +489,7 @@ class _Step extends StatelessWidget {
                   ),
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         Text(
           label,
           style: TextStyle(
@@ -513,12 +513,12 @@ class _StepConnector extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 1.5,
-        margin: const EdgeInsets.only(bottom: 18, left: 6, right: 6),
+        margin: EdgeInsets.only(bottom: 18, left: 6, right: 6),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: filled
                 ? [AppPalette.accent, AppPalette.accent.withValues(alpha: 0.3)]
-                : [const Color(0xFF1E3050), const Color(0xFF1E3050)],
+                : [AppPalette.cardStroke, AppPalette.cardStroke],
           ),
         ),
       ),
@@ -543,14 +543,14 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 0, 0, 14),
+      padding: EdgeInsets.fromLTRB(4, 0, 0, 14),
       child: Row(
         children: [
           Icon(icon, color: AppPalette.accent, size: 18),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppPalette.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w800,
@@ -573,7 +573,7 @@ class _ValidatedField extends StatefulWidget {
     required this.hint,
     required this.icon,
     required this.validator,
-    this.accentColor = AppPalette.accent,
+    this.accentColor,
     this.maxLength,
   });
 
@@ -582,7 +582,7 @@ class _ValidatedField extends StatefulWidget {
   final String hint;
   final IconData icon;
   final String? Function(String?) validator;
-  final Color accentColor;
+  final Color? accentColor;
   final int? maxLength;
 
   @override
@@ -594,6 +594,7 @@ class _ValidatedFieldState extends State<_ValidatedField> {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = widget.accentColor ?? AppPalette.accent;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -605,11 +606,11 @@ class _ValidatedFieldState extends State<_ValidatedField> {
             color: _focused ? _Tokens.surface3 : _Tokens.surface1,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: _focused ? widget.accentColor : _Tokens.border,
+              color: _focused ? activeColor : _Tokens.border,
               width: _focused ? 1.5 : 1,
             ),
             boxShadow: _focused
-                ? [BoxShadow(color: widget.accentColor.withValues(alpha: 0.08), blurRadius: 10)]
+                ? [BoxShadow(color: activeColor.withValues(alpha: 0.08), blurRadius: 10)]
                 : null,
           ),
           child: Row(
@@ -622,7 +623,7 @@ class _ValidatedFieldState extends State<_ValidatedField> {
                   widget.icon,
                   key: ValueKey(_focused),
                   size: 17,
-                  color: _focused ? widget.accentColor : _Tokens.muted,
+                  color: _focused ? activeColor : _Tokens.muted,
                 ),
               ),
               const SizedBox(width: 10),
@@ -677,7 +678,7 @@ class _FormatPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('FORMAT', style: _Tokens.labelStyle),
+        Text('FORMAT', style: _Tokens.labelStyle),
         const SizedBox(height: 8),
         Row(
           children: formats.asMap().entries.map((e) {
@@ -693,7 +694,7 @@ class _FormatPicker extends StatelessWidget {
                     onSelect(label);
                   },
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: Duration(milliseconds: 200),
                     height: 68,
                     decoration: BoxDecoration(
                       color: sel
@@ -721,7 +722,7 @@ class _FormatPicker extends StatelessWidget {
                           size: 18,
                           color: sel ? AppPalette.accent : _Tokens.muted,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           label,
                           style: TextStyle(
@@ -808,14 +809,14 @@ class _NumberBox extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       textAlign: TextAlign.center,
-      style: const TextStyle(
+      style: TextStyle(
         color: AppPalette.textPrimary,
         fontSize: 22,
         fontWeight: FontWeight.w800,
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           color: _Tokens.muted,
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -832,15 +833,15 @@ class _NumberBox extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _Tokens.border),
+          borderSide: BorderSide(color: _Tokens.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: _Tokens.border),
+          borderSide: BorderSide(color: _Tokens.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppPalette.accent, width: 1.5),
+          borderSide: BorderSide(color: AppPalette.accent, width: 1.5),
         ),
       ),
     );
@@ -860,9 +861,9 @@ class _VsDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.transparent, Color(0xFF1E3050)],
+                colors: [Colors.transparent, AppPalette.cardStroke],
               ),
             ),
           ),
@@ -871,8 +872,8 @@ class _VsDivider extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0060DD), Color(0xFF00AAEE)],
+            gradient: LinearGradient(
+              colors: [AppPalette.accent, AppPalette.accent.withValues(alpha: 0.7)],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
@@ -897,9 +898,9 @@ class _VsDivider extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1E3050), Colors.transparent],
+                colors: [AppPalette.cardStroke, Colors.transparent],
               ),
             ),
           ),
@@ -953,7 +954,7 @@ class _TapField extends StatelessWidget {
                         : _Tokens.border,
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 13),
+            padding: EdgeInsets.symmetric(horizontal: 13),
             child: Row(
               children: [
                 Icon(
@@ -961,7 +962,7 @@ class _TapField extends StatelessWidget {
                   size: 16,
                   color: hasValue ? AppPalette.accent : _Tokens.muted,
                 ),
-                const SizedBox(width: 9),
+                SizedBox(width: 9),
                 Expanded(
                   child: Text(
                     value ?? hint,
@@ -1041,12 +1042,12 @@ class _DropdownField extends StatelessWidget {
                   child: DropdownButton<String>(
                     value: value,
                     isExpanded: true,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.expand_more_rounded,
                       color: AppPalette.accent,
                       size: 20,
                     ),
-                    dropdownColor: const Color(0xFF0F2040),
+                    dropdownColor: AppPalette.cardPrimary,
                     style: _Tokens.fieldStyle,
                     items: items
                         .map(
@@ -1087,7 +1088,7 @@ class _BottomCtaState extends State<_BottomCta> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _Tokens.surface1,
         border: Border(top: BorderSide(color: _Tokens.border, width: 1)),
       ),
@@ -1111,8 +1112,8 @@ class _BottomCtaState extends State<_BottomCta> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: _pressed
-                        ? [const Color(0xFF0080BB), const Color(0xFF004FAA)]
-                        : [const Color(0xFF00B4E8), const Color(0xFF0063D8)],
+                        ? [AppPalette.accent.withValues(alpha: 0.7), AppPalette.accent.withValues(alpha: 0.5)]
+                        : [AppPalette.accent, AppPalette.accent.withValues(alpha: 0.8)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),

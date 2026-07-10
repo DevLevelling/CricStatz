@@ -152,9 +152,9 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
+      bottomNavigationBar: AppBottomNavBar(currentIndex: 1),
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -164,7 +164,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
                   future: _statsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child: CircularProgressIndicator(color: AppPalette.live),
                       );
                     }
@@ -275,7 +275,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: AppPalette.bgPrimary,
       child: Row(
         children: [
@@ -292,10 +292,10 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
                 color: AppPalette.live.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.arrow_back, color: AppPalette.live),
+              child: Icon(Icons.arrow_back, color: AppPalette.live),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Text(
             'My Stats',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -315,7 +315,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
     required List<_StatItem> stats,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(12),
@@ -327,7 +327,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
           Row(
             children: [
               Icon(icon, color: AppPalette.live, size: 24),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -357,7 +357,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
 
   Widget _buildStatCard(BuildContext context, String label, String value) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppPalette.bgSecondary,
         borderRadius: BorderRadius.circular(8),
@@ -372,7 +372,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
                   color: AppPalette.live,
                 ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(

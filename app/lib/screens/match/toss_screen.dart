@@ -68,12 +68,12 @@ class _TossScreenState extends State<TossScreen> {
   @override
   Widget build(BuildContext context) {
     if (_match == null) {
-      return const Scaffold(body: Center(child: Text('No match data found', style: TextStyle(color: Colors.white))));
+      return Scaffold(body: Center(child: Text('No match data found', style: TextStyle(color: AppPalette.textPrimary))));
     }
 
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -107,14 +107,14 @@ class _TossScreenState extends State<TossScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_new, color: AppPalette.textPrimary, size: 20),
+            icon: Icon(Icons.arrow_back_ios_new, color: AppPalette.textPrimary, size: 20),
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 'Toss',
@@ -135,7 +135,7 @@ class _TossScreenState extends State<TossScreen> {
   Widget _buildCallerSelection() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Who is calling the toss?',
           style: TextStyle(color: AppPalette.textMuted, fontSize: 16),
         ),
@@ -155,8 +155,8 @@ class _TossScreenState extends State<TossScreen> {
             )),
           ],
         ),
-        const SizedBox(height: 24),
-        const Text(
+        SizedBox(height: 24),
+        Text(
           'What is the call?',
           style: TextStyle(color: AppPalette.textMuted, fontSize: 16),
         ),
@@ -191,10 +191,10 @@ class _TossScreenState extends State<TossScreen> {
       children: [
         Text(
           '$_tossWinner won the toss!',
-          style: const TextStyle(color: AppPalette.accent, fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppPalette.accent, fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
-        const Text(
+        SizedBox(height: 12),
+        Text(
           'Choose to Bat or Bowl',
           style: TextStyle(color: AppPalette.textMuted, fontSize: 16),
         ),
@@ -235,7 +235,7 @@ class _TossScreenState extends State<TossScreen> {
     if (!visible) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: SizedBox(
         width: double.infinity,
         child: FilledButton(
@@ -262,7 +262,7 @@ class _TossScreenState extends State<TossScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator(color: AppPalette.accent)),
+      builder: (context) => Center(child: CircularProgressIndicator(color: AppPalette.accent)),
     );
 
     try {
@@ -306,9 +306,9 @@ class _TeamTossCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
+        padding: EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: isSelected ? AppPalette.accent.withOpacity(0.1) : AppPalette.bgSecondary,
+          color: isSelected ? AppPalette.accent.withOpacity(0.1) : AppPalette.cardPrimary,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isSelected ? AppPalette.accent : AppPalette.cardStroke, width: 2),
         ),
@@ -316,14 +316,14 @@ class _TeamTossCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundColor: AppPalette.cardOverlay,
-              child: Text(name[0], style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              backgroundColor: AppPalette.cardPrimary,
+              child: Text(name[0], style: TextStyle(color: AppPalette.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               name,
               style: TextStyle(
-                color: isSelected ? AppPalette.accent : Colors.white,
+                color: isSelected ? AppPalette.accent : AppPalette.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -346,20 +346,20 @@ class _DecisionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: isSelected ? AppPalette.accent : AppPalette.bgSecondary,
+          color: isSelected ? AppPalette.accent : AppPalette.cardPrimary,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isSelected ? Colors.transparent : AppPalette.cardStroke),
         ),
         child: Column(
           children: [
-            Icon(icon, color: isSelected ? AppPalette.bgSecondary : Colors.white, size: 32),
-            const SizedBox(height: 8),
+            Icon(icon, color: isSelected ? Colors.white : AppPalette.textPrimary, size: 32),
+            SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? AppPalette.bgSecondary : Colors.white,
+                color: isSelected ? Colors.white : AppPalette.textPrimary,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.2,
               ),

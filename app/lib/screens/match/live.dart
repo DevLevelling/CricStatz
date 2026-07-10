@@ -11,18 +11,18 @@ import 'dart:ui' show ImageFilter;
 
 // ─── Color Constants ───────────────────────────────────────────────────────────
 class AppColors {
-  static const primary = AppPalette.bgPrimary;
-  static const accent = Color(0xFF00C2FF);
-  static const cardDark = Color(0xFF111827);
-  static const textMain = Color(0xFFEAF2FF);
-  static const white10 = Color(0x1AFFFFFF);
-  static const white5 = Color(0x0DFFFFFF);
-  static const white60 = Color(0x99FFFFFF);
-  static const white80 = Color(0xCCFFFFFF);
-  static const slate400 = Color(0xFF94A3B8);
-  static const slate500 = Color(0xFF64748B);
-  static const slate700 = Color(0xFF334155);
-  static const slate800 = Color(0xFF1E293B);
+  static Color get primary => AppPalette.bgPrimary;
+  static Color get accent => AppPalette.accent;
+  static Color get cardDark => AppPalette.cardPrimary;
+  static Color get textMain => AppPalette.textPrimary;
+  static Color get white10 => AppPalette.cardStroke;
+  static Color get white5 => AppPalette.cardStroke.withValues(alpha: 0.5);
+  static Color get white60 => AppPalette.textMuted;
+  static Color get white80 => AppPalette.textSubtle;
+  static Color get slate400 => AppPalette.textMuted;
+  static Color get slate500 => AppPalette.textMuted;
+  static Color get slate700 => AppPalette.cardStroke;
+  static Color get slate800 => AppPalette.cardPrimary;
 }
 
 // ─── Main Screen ───────────────────────────────────────────────────────────────
@@ -128,11 +128,11 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF111827),
+                              color: AppPalette.cardPrimary,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: AppColors.white5),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Waiting for live score updates...',
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -162,9 +162,9 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
         child: Container(
           height: 72,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: [
@@ -174,7 +174,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                   AppRoutes.home,
                   (route) => false,
                 ),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new,
                   color: AppPalette.textPrimary,
                   size: 20,
@@ -198,7 +198,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                     Text(
                       _match?.matchFormat ?? 'Match Details',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFCBD5E1),
+                            color: AppPalette.textSubtle,
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -207,7 +207,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(
+                icon: Icon(
                   Icons.share_outlined,
                   color: AppPalette.textPrimary,
                   size: 20,
@@ -232,9 +232,9 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
           height: 51,
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: List.generate(tabs.length, (i) {
@@ -263,7 +263,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> {
                         ),
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     child: Text(
                       tabs[i],
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -301,8 +301,8 @@ class _ScoreBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0A1F44), Color(0xFF111827)],
+            gradient: LinearGradient(
+              colors: [AppPalette.bgPrimary, AppPalette.cardPrimary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -310,7 +310,7 @@ class _ScoreBanner extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
                 blurRadius: 24,
                 spreadRadius: 2,
               )
@@ -348,7 +348,7 @@ class _ScoreBanner extends StatelessWidget {
                             children: [
                                Text(
                                 summary.inningsName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.accent,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -368,11 +368,11 @@ class _ScoreBanner extends StatelessWidget {
                               const SizedBox(height: 4),
                               RichText(
                                 text: TextSpan(
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: AppColors.white80, fontSize: 13),
                                   children: [
                                     TextSpan(text: 'Overs: ${summary.overs}'),
-                                    const TextSpan(
+                                    TextSpan(
                                         text: '  •  ',
                                         style: TextStyle(
                                             color: AppColors.white60)),
@@ -416,7 +416,7 @@ class _ScoreBanner extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              const Text(
+                              Text(
                                 'Target: 320',
                                 style: TextStyle(
                                     color: AppColors.white60, fontSize: 12),
@@ -440,7 +440,7 @@ class _ScoreBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     // Divider
-                    const Divider(color: AppColors.white10, height: 1),
+                    Divider(color: AppColors.white10, height: 1),
                     const SizedBox(height: 16),
                     // Bottom: Australia score + required rate
                     Row(
@@ -451,7 +451,7 @@ class _ScoreBanner extends StatelessWidget {
                             children: [
                               Text(
                                 '${match?.teamAId ?? "TEAM"} (1ST INNINGS)',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.white60,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -476,7 +476,7 @@ class _ScoreBanner extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              const Text(
+                              Text(
                                 'REQUIRED RATE',
                                 style: TextStyle(
                                   color: AppColors.white60,
@@ -488,7 +488,7 @@ class _ScoreBanner extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 summary.reqRate ?? '0.0',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.accent,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
@@ -596,7 +596,7 @@ class _PartnershipCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'CURRENT PARTNERSHIP',
             style: TextStyle(
               color: AppColors.slate400,
@@ -619,7 +619,7 @@ class _PartnershipCard extends StatelessWidget {
                 ),
                 TextSpan(
                   text: '(${partnership.balls} balls)',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.slate400,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -664,73 +664,84 @@ class _BatsmanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final active = score.isActive ?? false;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(12),
-        border: active
-            ? const Border(
-                left: BorderSide(color: AppColors.accent, width: 4),
-                top: BorderSide(color: AppColors.white5),
-                right: BorderSide(color: AppColors.white5),
-                bottom: BorderSide(color: AppColors.white5),
-              )
-            : Border.all(color: AppColors.white5),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Stack(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                score.name,
-                style: TextStyle(
-                  color: active ? Colors.white : const Color(0xFFCBD5E1),
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              color: AppColors.cardDark,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.white5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      score.name,
+                      style: TextStyle(
+                        color: active ? AppPalette.textPrimary : AppPalette.textSubtle,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                    if (active)
+                      Icon(Icons.stars_rounded,
+                          color: AppColors.accent, size: 18),
+                  ],
                 ),
-              ),
-              if (active)
-                const Icon(Icons.stars_rounded,
-                    color: AppColors.accent, size: 18),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                score.runs,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      score.runs,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '(${score.balls})',
+                      style: TextStyle(color: AppColors.slate400, fontSize: 13),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                '(${score.balls})',
-                style: const TextStyle(color: AppColors.slate400, fontSize: 13),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '4s: ${score.fours}   6s: ${score.sixes}   SR: ${score.sr}',
-            style: const TextStyle(
-              color: AppColors.slate400,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
+                const SizedBox(height: 8),
+                Text(
+                  '4s: ${score.fours}   6s: ${score.sixes}   SR: ${score.sr}',
+                  style: TextStyle(
+                    color: AppColors.slate400,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
+          if (active)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 4,
+                color: AppColors.accent,
+              ),
+            ),
         ],
       ),
     );
   }
 }
+
 
 // ─── Bowler Card ───────────────────────────────────────────────────────────────
 class _BowlerCard extends StatelessWidget {
@@ -760,7 +771,7 @@ class _BowlerCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: AppColors.white10),
                 ),
-                child: const Icon(Icons.person_outline,
+                child: Icon(Icons.person_outline,
                     color: AppColors.white60, size: 22),
               ),
               const SizedBox(width: 12),
@@ -778,7 +789,7 @@ class _BowlerCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${bowler.overs} - ${bowler.maidens} - ${bowler.runs} - ${bowler.wickets}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.slate400,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -791,7 +802,7 @@ class _BowlerCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 'THIS OVER',
                 style: TextStyle(
                   color: AppColors.accent,
@@ -854,8 +865,8 @@ class _RecentBalls extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 4, bottom: 12),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
           child: Text(
             'RECENT BALLS',
             style: TextStyle(
@@ -929,7 +940,7 @@ class _OverRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -939,7 +950,7 @@ class _OverRow extends StatelessWidget {
               quarterTurns: 3,
               child: Text(
                 overLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.slate500,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,

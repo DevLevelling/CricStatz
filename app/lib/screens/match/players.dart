@@ -6,9 +6,9 @@ import 'package:cricstatz/widgets/skeleton_loaders.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
-const Color _playersBg = AppPalette.bgPrimary;
-const Color _playersStroke = Color(0xFF1E293B);
-const Color _playersSegBg = Color(0xFF1E293B);
+Color get _playersBg => AppPalette.bgPrimary;
+Color get _playersStroke => AppPalette.cardStroke;
+Color get _playersSegBg => AppPalette.cardPrimary;
 
 class MatchPlayersScreen extends StatefulWidget {
   final String? matchId;
@@ -69,10 +69,10 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
   static const _imgPrasidh =
       'https://www.figma.com/api/mcp/asset/9a6d3c27-3c1e-410a-807c-5491c95bc322';
 
-  static const Color _bg = _playersBg;
-  static const Color _segBg = _playersSegBg;
-  static const Color _segSelected = AppPalette.bgSecondary; // #0A1F43
-  static const Color _segUnselectedText = AppPalette.textMuted;
+  static Color get _bg => AppPalette.bgPrimary;
+  static Color get _segBg => AppPalette.cardPrimary;
+  static Color get _segSelected => AppPalette.accent;
+  static Color get _segUnselectedText => AppPalette.textMuted;
 
   @override
   Widget build(BuildContext context) {
@@ -116,9 +116,9 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
         child: Container(
           height: 72,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: [
@@ -128,7 +128,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
                   AppRoutes.home,
                   (route) => false,
                 ),
-                icon: const Icon(Icons.arrow_back_ios_new,
+                icon: Icon(Icons.arrow_back_ios_new,
                     color: AppPalette.textPrimary, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -149,7 +149,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFCBD5E1),
+                            color: AppPalette.textSubtle,
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -158,7 +158,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.share_outlined,
+                icon: Icon(Icons.share_outlined,
                     color: AppPalette.textPrimary, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -179,9 +179,9 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
           height: 51,
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: List.generate(tabs.length, (i) {
@@ -210,7 +210,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
                         ),
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     child: Text(
                       tabs[i],
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -247,7 +247,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
             Expanded(
               child: _segButton(
                 context,
-                label: 'INDIA',
+                label: _match?.teamAId ?? 'INDIA',
                 selected: _isIndiaSelected,
                 onTap: () => setState(() => _isIndiaSelected = true),
               ),
@@ -255,7 +255,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
             Expanded(
               child: _segButton(
                 context,
-                label: 'AUSTRALIA',
+                label: _match?.teamBId ?? 'AUSTRALIA',
                 selected: !_isIndiaSelected,
                 onTap: () => setState(() => _isIndiaSelected = false),
               ),
@@ -294,7 +294,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
         child: Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: selected ? Colors.white : _segUnselectedText,
+                color: selected ? Colors.white : AppPalette.textMuted,
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
@@ -305,7 +305,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
 
   Widget _buildPlayingXIHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -355,7 +355,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
             children: [
               _PlayerRow(data: players[i]),
               if (i != players.length - 1)
-                const Divider(height: 1, color: _playersStroke),
+                Divider(height: 1, color: AppPalette.cardStroke),
             ],
           );
         }),
@@ -373,8 +373,8 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
-      decoration: const BoxDecoration(
-        color: Color(0x660F172A),
+      decoration: BoxDecoration(
+        color: AppPalette.cardPrimary,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,7 +425,7 @@ class _PlayerRow extends StatelessWidget {
 
   final _PlayerRowData data;
 
-  static const _avatarBorder = Color(0x33111F43);
+  static Color get _avatarBorder => AppPalette.cardStroke;
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +454,7 @@ class _PlayerRow extends StatelessWidget {
                         errorBuilder: (_, __, ___) => Container(
                           color: _playersStroke,
                           alignment: Alignment.center,
-                          child: const Icon(Icons.person,
+                          child: Icon(Icons.person,
                               color: AppPalette.textMuted),
                         ),
                       ),
@@ -486,7 +486,7 @@ class _PlayerRow extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -499,7 +499,7 @@ class _PlayerRow extends StatelessWidget {
                           height: 1.1,
                         ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     data.role,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -523,7 +523,7 @@ class _PlayerRow extends StatelessWidget {
                       fontSize: 14,
                     ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 data.subStat,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -563,9 +563,9 @@ class _BenchRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 13),
       decoration: BoxDecoration(
-        color: _playersSegBg,
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0x80334155)),
+        border: Border.all(color: AppPalette.cardStroke),
       ),
       child: Row(
         children: [
@@ -575,7 +575,7 @@ class _BenchRow extends StatelessWidget {
             padding: const EdgeInsets.all(1),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF334155)),
+              border: Border.all(color: AppPalette.cardStroke),
             ),
             child: ClipOval(
               child: Image.network(
@@ -584,12 +584,12 @@ class _BenchRow extends StatelessWidget {
                 errorBuilder: (_, __, ___) => Container(
                   color: _playersStroke,
                   alignment: Alignment.center,
-                  child: const Icon(Icons.person, color: AppPalette.textMuted),
+                  child: Icon(Icons.person, color: AppPalette.textMuted),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -601,7 +601,7 @@ class _BenchRow extends StatelessWidget {
                       fontSize: 14,
                     ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 data.role,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
