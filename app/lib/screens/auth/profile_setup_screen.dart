@@ -84,7 +84,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -107,7 +107,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Center(
                       child: Text(
                         'Choose a unique username and your playing role',
@@ -117,7 +117,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     // Username field
                     Text(
                       'Username',
@@ -126,33 +126,33 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextFormField(
                       controller: _usernameController,
-                      style: const TextStyle(color: AppPalette.textPrimary),
+                      style: TextStyle(color: AppPalette.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'e.g. virat_king',
                         hintStyle:
-                            const TextStyle(color: AppPalette.textSubtle),
+                            TextStyle(color: AppPalette.textSubtle),
                         filled: true,
                         fillColor: AppPalette.cardPrimary,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: AppPalette.cardStroke),
+                              BorderSide(color: AppPalette.cardStroke),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: AppPalette.cardStroke),
+                              BorderSide(color: AppPalette.cardStroke),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: AppPalette.accent),
+                              BorderSide(color: AppPalette.accent),
                         ),
                         suffixIcon: _isCheckingUsername
-                            ? const Padding(
+                            ? Padding(
                                 padding: EdgeInsets.all(12),
                                 child: SizedBox(
                                   width: 20,
@@ -190,7 +190,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     // Role picker
                     Text(
                       'Playing Role',
@@ -246,7 +246,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           ),
                         ),
                         child: _isSubmitting
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 24,
                                 height: 24,
                                 child: CircularProgressIndicator(

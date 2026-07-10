@@ -37,6 +37,12 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    packaging {
+        resources {
+            excludes.add("META-INF/proguard/androidx-annotations.pro")
+        }
+    }
 }
 
 flutter {

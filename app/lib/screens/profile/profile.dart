@@ -1,5 +1,6 @@
 import 'package:cricstatz/config/palette.dart';
 import 'package:cricstatz/providers/auth_provider.dart';
+import 'package:cricstatz/providers/theme_provider.dart';
 import 'package:cricstatz/services/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,21 +39,21 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 56,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppPalette.bgSecondary,
         border: Border(
           bottom: BorderSide(color: AppPalette.cardStroke),
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_new,
+            icon: Icon(Icons.arrow_back_ios_new,
                 color: AppPalette.textPrimary, size: 20),
           ),
-          const Expanded(
+          Expanded(
             child: Text(
               'Player Profile',
               textAlign: TextAlign.center,
@@ -63,8 +64,10 @@ class _Header extends StatelessWidget {
               ),
             ),
           ),
+          const _SunMoonThemeSwitch(),
+          SizedBox(width: 4),
           PopupMenuButton<String>(
-            icon: const Icon(
+            icon: Icon(
               Icons.settings_outlined,
               color: AppPalette.textPrimary,
               size: 20,
@@ -146,7 +149,7 @@ void _showEditProfileSheet(BuildContext context) {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Edit Profile',
                   style: TextStyle(
                     color: AppPalette.textPrimary,
@@ -154,51 +157,51 @@ void _showEditProfileSheet(BuildContext context) {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 TextField(
                   controller: displayNameController,
-                  style: const TextStyle(color: AppPalette.textPrimary),
+                  style: TextStyle(color: AppPalette.textPrimary),
                   decoration: InputDecoration(
                     labelText: 'Display Name',
                     labelStyle:
-                        const TextStyle(color: AppPalette.textMuted),
+                        TextStyle(color: AppPalette.textMuted),
                     enabledBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(color: AppPalette.cardStroke),
+                          BorderSide(color: AppPalette.cardStroke),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(color: AppPalette.accent),
+                          BorderSide(color: AppPalette.accent),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 TextField(
                   controller: usernameController,
-                  style: const TextStyle(color: AppPalette.textPrimary),
+                  style: TextStyle(color: AppPalette.textPrimary),
                   decoration: InputDecoration(
                     labelText: 'Username',
                     labelStyle:
-                        const TextStyle(color: AppPalette.textMuted),
+                        TextStyle(color: AppPalette.textMuted),
                     prefixText: '@',
                     prefixStyle:
-                        const TextStyle(color: AppPalette.textMuted),
+                        TextStyle(color: AppPalette.textMuted),
                     enabledBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(color: AppPalette.cardStroke),
+                          BorderSide(color: AppPalette.cardStroke),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide:
-                          const BorderSide(color: AppPalette.accent),
+                          BorderSide(color: AppPalette.accent),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                const Text(
+                SizedBox(height: 14),
+                Text(
                   'Role',
                   style: TextStyle(
                     color: AppPalette.textMuted,
@@ -276,7 +279,7 @@ void _showEditProfileSheet(BuildContext context) {
                       ),
                     ),
                     child: isSaving
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -330,11 +333,11 @@ class _ProfileHeaderCard extends StatelessWidget {
                     avatarUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: AppPalette.cardOverlay,
+                      color: AppPalette.cardPrimary,
                       alignment: Alignment.center,
                       child: Text(
                         displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppPalette.accent,
                           fontSize: 48,
                           fontWeight: FontWeight.w700,
@@ -343,11 +346,11 @@ class _ProfileHeaderCard extends StatelessWidget {
                     ),
                   )
                 : Container(
-                    color: AppPalette.cardOverlay,
+                    color: AppPalette.cardPrimary,
                     alignment: Alignment.center,
                     child: Text(
                       displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.accent,
                         fontSize: 48,
                         fontWeight: FontWeight.w700,
@@ -356,39 +359,40 @@ class _ProfileHeaderCard extends StatelessWidget {
                   ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(
           displayName,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppPalette.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           '@$username  •  ${_formatRole(role)}',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppPalette.textMuted,
             fontSize: 14,
           ),
         ),
         if (inviteCode.isNotEmpty) ...[
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: AppPalette.cardOverlay,
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: AppPalette.cardStroke),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.tag, size: 14, color: AppPalette.accent),
-                const SizedBox(width: 4),
+                Icon(Icons.tag, size: 14, color: AppPalette.accent),
+                SizedBox(width: 4),
                 Text(
                   inviteCode,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppPalette.accent,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -399,14 +403,14 @@ class _ProfileHeaderCard extends StatelessWidget {
             ),
           ),
         ],
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Row(
           children: [
             Expanded(
               child: OutlinedButton(
                 onPressed: () => _showEditProfileSheet(context),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppPalette.cardStroke),
+                  side: BorderSide(color: AppPalette.cardStroke),
                   foregroundColor: AppPalette.textPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   shape: RoundedRectangleBorder(
@@ -419,7 +423,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: FilledButton(
                 onPressed: () {},
@@ -450,9 +454,9 @@ class _QuickStatsRow extends StatelessWidget {
     Widget card(String value, String label, {Color? valueColor}) {
       return Expanded(
         child: Container(
-          padding: const EdgeInsets.all(13),
+          padding: EdgeInsets.all(13),
           decoration: BoxDecoration(
-            color: AppPalette.cardOverlay.withOpacity(0.5),
+            color: AppPalette.cardPrimary,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: AppPalette.cardStroke),
           ),
@@ -466,10 +470,10 @@ class _QuickStatsRow extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 label.toUpperCase(),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppPalette.textMuted,
                   fontSize: 11,
                   letterSpacing: -0.2,
@@ -484,7 +488,7 @@ class _QuickStatsRow extends StatelessWidget {
     return Row(
       children: [
         card('24', 'Matches'),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         card('1250', 'Runs', valueColor: AppPalette.accent),
         const SizedBox(width: 12),
         card('85', 'Wickets'),
@@ -499,8 +503,8 @@ class _ProfileTabs extends StatelessWidget {
     const tabs = ['Overview', 'Matches', 'Stats'];
     const selectedIndex = 1;
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      decoration: const BoxDecoration(
+      margin: EdgeInsets.only(top: 12),
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
       ),
       child: Row(
@@ -509,7 +513,7 @@ class _ProfileTabs extends StatelessWidget {
           return Expanded(
             child: Container(
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
@@ -538,7 +542,7 @@ class _MatchHistoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: const [
+      children: [
         _MatchCard(
           title: 'Final • Oct 24, 2023',
           opponent: 'vs Scorchers XI',
@@ -591,9 +595,9 @@ class _MatchCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
+      padding: EdgeInsets.all(17),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2431),
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.cardStroke),
       ),
@@ -608,7 +612,7 @@ class _MatchCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppPalette.accent,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -622,16 +626,16 @@ class _MatchCard extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF334155),
+                          color: AppPalette.cardStroke.withOpacity(0.5),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.person,
+                        child: Icon(Icons.person,
                             size: 16, color: AppPalette.textMuted),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         opponent,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppPalette.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -659,8 +663,8 @@ class _MatchCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(color: AppPalette.cardStroke),
+          SizedBox(height: 12),
+          Divider(color: AppPalette.cardStroke),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -668,7 +672,7 @@ class _MatchCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'BATTING',
                       style: TextStyle(
                         color: AppPalette.textMuted,
@@ -676,10 +680,10 @@ class _MatchCard extends StatelessWidget {
                         letterSpacing: 0.6,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       batting,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -692,7 +696,7 @@ class _MatchCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'BOWLING',
                       style: TextStyle(
                         color: AppPalette.textMuted,
@@ -700,10 +704,10 @@ class _MatchCard extends StatelessWidget {
                         letterSpacing: 0.6,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       bowling,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -719,4 +723,109 @@ class _MatchCard extends StatelessWidget {
     );
   }
 }
+
+class _SunMoonThemeSwitch extends StatelessWidget {
+  const _SunMoonThemeSwitch();
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final isDark = themeProvider.currentTheme.isDark;
+
+    return GestureDetector(
+      onTap: () => themeProvider.toggleDarkLight(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 380),
+        curve: Curves.easeInOut,
+        width: 56,
+        height: 32,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: isDark ? AppPalette.cardPrimary : AppPalette.bgSecondary,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 380),
+              curve: Curves.easeInOut,
+              left: isDark ? 24 : 0,
+              top: 0,
+              child: isDark
+                  ? Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppPalette.cardPrimary,
+                      ),
+                      child: const CustomPaint(
+                        painter: _MoonPainter(),
+                      ),
+                    )
+                  : Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomLeft,
+                          end: Alignment.topRight,
+                          colors: [
+                            Color(0xFFFF0080),
+                            Color(0xFFFF8C00),
+                          ],
+                        ),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MoonPainter extends CustomPainter {
+  const _MoonPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+
+    final outerCircle = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius));
+
+    final cutoutCircle = Path()
+      ..addOval(Rect.fromCircle(
+        center: Offset(center.dx - radius * 0.35, center.dy - radius * 0.22),
+        radius: radius * 0.88,
+      ));
+
+    final crescentPath = Path.combine(
+      PathOperation.difference,
+      outerCircle,
+      cutoutCircle,
+    );
+
+    final shadowPaint = Paint()
+      ..color = const Color(0xFF8983F7)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+    canvas.drawPath(crescentPath, shadowPaint);
+
+    final moonPaint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topRight,
+        end: Alignment.bottomLeft,
+        colors: [Color(0xFFA3DAFB), Color(0xFF8983F7)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    canvas.drawPath(crescentPath, moonPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 

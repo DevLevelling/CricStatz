@@ -309,9 +309,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
@@ -320,12 +320,12 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color:
                           AppPalette.accent.withAlpha((0.1 * 255).toInt())),
-                  child: const Icon(Icons.directions_walk_rounded,
+                  child: Icon(Icons.directions_walk_rounded,
                       color: AppPalette.accent, size: 32),
                 ),
                 const SizedBox(height: 16),
@@ -335,8 +335,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         fontWeight: FontWeight.w900,
                         fontSize: 22,
                         letterSpacing: 1.5)),
-                const SizedBox(height: 8),
-                const Text('Select batsman to retire',
+                SizedBox(height: 8),
+                Text('Select batsman to retire',
                     style: TextStyle(
                         color: AppPalette.textMuted, fontSize: 14)),
                 const SizedBox(height: 24),
@@ -355,7 +355,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                   final player = entry.value;
                   final isStriker = index == _strikerIndex;
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
@@ -376,21 +376,21 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                       ),
                       title: Text(
                         '${player.name} ${isStriker ? "(Striker)" : "(Non-Striker)"}',
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.white),
                       ),
                       subtitle: Text(
                         '${_playerStats[player.id]?['runs'] ?? 0}(${_playerStats[player.id]?['balls'] ?? 0})',
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppPalette.textMuted, fontSize: 12),
                       ),
                       onTap: () => _finalizeRetire(index),
                     ),
                   );
                 }),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL',
+                  child: Text('CANCEL',
                       style: TextStyle(
                           color: AppPalette.textMuted,
                           fontWeight: FontWeight.bold,
@@ -429,7 +429,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${retiredPlayer.name} retired',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppPalette.accent,
         duration: const Duration(seconds: 1),
       ),
@@ -1264,11 +1264,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
           backgroundColor: AppPalette.bgSecondary,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text(
+          title: Text(
             'End 1st Innings?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-          content: const Text(
+          content: Text(
             'Overs limit reached. Start scoring for the second team?',
             style: TextStyle(color: AppPalette.textMuted),
           ),
@@ -1278,7 +1278,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                 _isTransitionInProgress = false;
                 Navigator.pop(context);
               },
-              child: const Text(
+              child: Text(
                 'CANCEL',
                 style: TextStyle(color: AppPalette.textMuted),
               ),
@@ -1290,7 +1290,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                 _isTransitionInProgress = false;
               },
               style: FilledButton.styleFrom(backgroundColor: AppPalette.accent),
-              child: const Text(
+              child: Text(
                 'START 2ND INNINGS',
                 style: TextStyle(
                     color: AppPalette.bgSecondary, fontWeight: FontWeight.bold),
@@ -1305,7 +1305,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: CircularProgressIndicator(color: AppPalette.accent),
         ),
       );
@@ -1370,9 +1370,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
@@ -1386,8 +1386,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         fontWeight: FontWeight.w900,
                         fontSize: 22,
                         letterSpacing: 1.5)),
-                const SizedBox(height: 8),
-                const Text('Runs scored off the bat?',
+                SizedBox(height: 8),
+                Text('Runs scored off the bat?',
                     style: TextStyle(color: AppPalette.textMuted, fontSize: 14)),
                 const SizedBox(height: 20),
                 Wrap(
@@ -1428,10 +1428,10 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('CANCEL',
+                  child: Text('CANCEL',
                       style: TextStyle(
                           color: AppPalette.textMuted,
                           fontWeight: FontWeight.bold)),
@@ -1469,11 +1469,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
         child: Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(20),
+          insetPadding: EdgeInsets.all(20),
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: AppPalette.live.withAlpha((0.3 * 255).toInt())),
@@ -1488,11 +1488,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12),
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppPalette.live.withAlpha((0.1 * 255).toInt())),
-                  child: const Icon(Icons.gavel_rounded,
+                  child: Icon(Icons.gavel_rounded,
                       color: AppPalette.live, size: 32),
                 ),
                 const SizedBox(height: 16),
@@ -1502,8 +1502,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         fontWeight: FontWeight.w900,
                         fontSize: 28,
                         letterSpacing: 1.5)),
-                const SizedBox(height: 8),
-                const Text('Select Wicket Type',
+                SizedBox(height: 8),
+                Text('Select Wicket Type',
                     style:
                         TextStyle(color: AppPalette.textMuted, fontSize: 14)),
                 const SizedBox(height: 24),
@@ -1529,10 +1529,10 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         onTap: () => _confirmWicket('Hit Wicket')),
                   ],
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL',
+                  child: Text('CANCEL',
                       style: TextStyle(
                           color: AppPalette.textMuted,
                           fontWeight: FontWeight.bold,
@@ -1557,9 +1557,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
@@ -1575,19 +1575,19 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                 const SizedBox(height: 24),
                 if (_fetchError != null)
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.symmetric(vertical: 16),
                     child: Column(
                       children: [
                         Text('Error loading players',
-                            style: const TextStyle(color: Colors.red)),
+                            style: TextStyle(color: Colors.red)),
                         Text(_fetchError!,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppPalette.textMuted, fontSize: 12)),
                       ],
                     ),
                   )
                 else if (_battingTeamPlayers.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Text(
                       'No players found',
@@ -1630,12 +1630,12 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                           ),
                           title: Text(
                             '${player.name} ${isStriker ? '(Striker)' : '(Non-Striker)'}',
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.white),
                           ),
                           onTap: () => _finalizeWicket(type, index),
                         ),
                         if (!isLast)
-                          const Divider(color: AppPalette.cardStroke),
+                          Divider(color: AppPalette.cardStroke),
                       ],
                     );
                   }),
@@ -1670,9 +1670,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withAlpha((0.95 * 255).toInt()),
+              color: AppPalette.cardPrimary,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                   color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
@@ -1685,8 +1685,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 18)),
-                const SizedBox(height: 8),
-                const Text('Before the run out',
+                SizedBox(height: 8),
+                Text('Before the run out',
                     style:
                         TextStyle(color: AppPalette.textMuted, fontSize: 14)),
                 const SizedBox(height: 24),
@@ -1718,10 +1718,10 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                     );
                   }),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('CANCEL',
+                  child: Text('CANCEL',
                       style: TextStyle(
                           color: AppPalette.textMuted,
                           fontWeight: FontWeight.bold,
@@ -1742,7 +1742,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('WICKET! - $type (${dismissedPlayer.name})',
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: AppPalette.live,
         duration: const Duration(seconds: 1),
       ),
@@ -1766,7 +1766,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         children: [
           DecoratedBox(
             decoration:
-                const BoxDecoration(gradient: AppPalette.surfaceGradient),
+                BoxDecoration(gradient: AppPalette.surfaceGradient),
             child: SafeArea(
               child: Column(
                 children: [
@@ -1808,8 +1808,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
             child: GestureDetector(
               onTap: () {},
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                margin: EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                 decoration: BoxDecoration(
                   color: AppPalette.bgSecondary,
                   borderRadius: BorderRadius.circular(16),
@@ -1827,13 +1827,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     SizedBox(
                       height: 280,
                       child: ListView.separated(
                         itemCount: _bowlingTeamPlayers.length,
                         separatorBuilder: (_, __) =>
-                            const Divider(color: AppPalette.cardStroke),
+                            Divider(color: AppPalette.cardStroke),
                         itemBuilder: (_, index) {
                           final player = _bowlingTeamPlayers[index];
                           return ListTile(
@@ -1882,8 +1882,8 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
           onTap: () {}, // Don't allow dismissing by tapping outside
           child: Center(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              margin: EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
               decoration: BoxDecoration(
                 color: AppPalette.bgSecondary,
                 borderRadius: BorderRadius.circular(16),
@@ -1894,12 +1894,12 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: AppPalette.accent.withAlpha((0.15 * 255).toInt()),
                     ),
-                    child: const Icon(Icons.sports_cricket,
+                    child: Icon(Icons.sports_cricket,
                         color: AppPalette.accent, size: 28),
                   ),
                   const SizedBox(height: 12),
@@ -1912,7 +1912,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                     ),
                   ),
                   if (_batterPickerMode == 'opening_striker')
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 4),
                       child: Text(
                         'Choose who will face the first ball',
@@ -1920,13 +1920,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                             TextStyle(color: AppPalette.textMuted, fontSize: 12),
                       ),
                     ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Flexible(
                     child: ListView.separated(
                       shrinkWrap: true,
                       itemCount: available.length,
                       separatorBuilder: (_, __) =>
-                          const Divider(color: AppPalette.cardStroke, height: 1),
+                          Divider(color: AppPalette.cardStroke, height: 1),
                       itemBuilder: (_, i) {
                         final playerIndex = available[i];
                         final player = _battingTeamPlayers[playerIndex];
@@ -1939,7 +1939,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                             backgroundColor: AppPalette.accent
                                 .withAlpha((0.2 * 255).toInt()),
                             child: Text(initials,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: AppPalette.accent,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13)),
@@ -1976,16 +1976,16 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     final inningsLabel = _innings == 1 ? '1st Innings' : '2nd Innings';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: const BoxDecoration(
-        color: Color(0xCC111721),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppPalette.bgPrimary,
         border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
       ),
       child: Row(
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_new,
+            icon: Icon(Icons.arrow_back_ios_new,
                 color: AppPalette.textPrimary, size: 20),
           ),
           Expanded(
@@ -1993,14 +1993,14 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               children: [
                 Text(
                   '$teamA vs $teamB',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.textPrimary,
                       fontWeight: FontWeight.bold,
                       fontSize: 16),
                 ),
                 Text(
                   '$battingTeam Batting • $inningsLabel',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.textMuted, fontSize: 12),
                 ),
               ],
@@ -2014,16 +2014,16 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
   Widget _buildScoreCard() {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withAlpha((0.3 * 255).toInt()),
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(24),
         border:
             Border.all(color: AppPalette.accent.withAlpha((0.2 * 255).toInt())),
         gradient: LinearGradient(
           colors: [
             AppPalette.accent.withAlpha((0.1 * 255).toInt()),
-            const Color(0xFF1E293B).withAlpha((0.1 * 255).toInt()),
+            AppPalette.cardStroke.withAlpha((0.1 * 255).toInt()),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -2081,11 +2081,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text('CRR',
+                          Text('CRR',
                               style: TextStyle(color: AppPalette.textMuted, fontSize: 12)),
                           Text(
                             _calculateCurrentRunRate().toStringAsFixed(2),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppPalette.accent,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold),
@@ -2093,11 +2093,11 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                         ],
                       ),
                       if (_innings == 2 && _target > 0 && _calculateRequiredRunRate() > 0) ...[
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            const Text('RRR',
+                            Text('RRR',
                                 style: TextStyle(color: AppPalette.textMuted, fontSize: 12)),
                             Text(
                               _calculateRequiredRunRate().toStringAsFixed(2),
@@ -2112,7 +2112,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                     ],
                   ),
                   if (_innings == 2 && _target > 0) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       _runs >= _target ? 'Target achieved' : 'Need ${_target - _runs} runs',
                       style: TextStyle(
@@ -2123,7 +2123,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
                     ),
                     Text(
                       'Target: $_target',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.textMuted,
                         fontSize: 11,
                       ),
@@ -2142,7 +2142,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     // Show error if fetch failed
     if (_fetchError != null) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
@@ -2151,7 +2151,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Failed to load players',
+            Text('Failed to load players',
                 style: TextStyle(color: AppPalette.textMuted)),
             const SizedBox(height: 8),
             Text(_fetchError!,
@@ -2171,13 +2171,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     // Show loading while players are being fetched
     if (!_playersLoaded) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppPalette.cardStroke),
         ),
-        child: const Center(
+        child: Center(
           child: SizedBox(
             height: 40,
             width: 40,
@@ -2192,7 +2192,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
     if (_battingTeamPlayers.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
@@ -2201,7 +2201,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'No players available',
               style: TextStyle(color: AppPalette.textMuted),
             ),
@@ -2227,7 +2227,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
             : null;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
         borderRadius: BorderRadius.circular(16),
@@ -2244,7 +2244,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
               isStriker: true,
             ),
           if (nonStriker != null) ...[
-            const Divider(color: AppPalette.cardStroke, height: 24),
+            Divider(color: AppPalette.cardStroke, height: 24),
             _StatsRow(
               name: nonStriker.name,
               runs: (_playerStats[nonStriker.id]?['runs'] ?? 0).toString(),
@@ -2262,7 +2262,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     // Show error if fetch failed
     if (_fetchError != null) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
@@ -2271,7 +2271,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Failed to load bowlers',
+            Text('Failed to load bowlers',
                 style: TextStyle(color: AppPalette.textMuted)),
             const SizedBox(height: 8),
             Text(_fetchError!,
@@ -2291,13 +2291,13 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     // Show loading while players are being fetched
     if (!_playersLoaded) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppPalette.cardStroke),
         ),
-        child: const Center(
+        child: Center(
           child: SizedBox(
             height: 40,
             width: 40,
@@ -2312,7 +2312,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
     if (_bowlingTeamPlayers.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
@@ -2321,7 +2321,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'No bowlers available',
               style: TextStyle(color: AppPalette.textMuted),
             ),
@@ -2344,7 +2344,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
 
     if (bowler == null) {
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
           borderRadius: BorderRadius.circular(16),
@@ -2373,7 +2373,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     final figures = '$overs.$balls-$maidens-$runs-$wickets';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppPalette.bgSecondary.withAlpha((0.5 * 255).toInt()),
         borderRadius: BorderRadius.circular(16),
@@ -2398,7 +2398,7 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('RECENT BALLS',
+        Text('RECENT BALLS',
             style: TextStyle(
                 color: AppPalette.textMuted,
                 fontSize: 12,
@@ -2420,9 +2420,9 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         _bowlerIndex >= 0 && _bowlerIndex < _bowlingTeamPlayers.length;
     final canScore = hasBowler && _openingBattersSelected;
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 24),
+      decoration: BoxDecoration(
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(32), topRight: Radius.circular(32)),
         border: Border(top: BorderSide(color: AppPalette.cardStroke)),
@@ -2431,12 +2431,12 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
         children: [
           if (!canScore)
             Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: 10),
               child: Text(
                 !_openingBattersSelected
                     ? 'Select opening batters to start scoring'
                     : 'Select bowler to start scoring',
-                style: const TextStyle(color: AppPalette.textMuted),
+                style: TextStyle(color: AppPalette.textMuted),
               ),
             ),
           IgnorePointer(
@@ -2544,7 +2544,7 @@ class _StatItem extends StatelessWidget {
         children: [
           Text(label,
               style:
-                  const TextStyle(color: AppPalette.textMuted, fontSize: 10)),
+                  TextStyle(color: AppPalette.textMuted, fontSize: 10)),
           Text(value,
               style: const TextStyle(
                   color: Colors.white,
@@ -2585,8 +2585,8 @@ class _BallCircle extends StatelessWidget {
     bool isLongText = label.length > 2;
 
     return Container(
-      margin: const EdgeInsets.only(right: 8),
-      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+      margin: EdgeInsets.only(right: 8),
+      constraints: BoxConstraints(minWidth: 32, minHeight: 32),
       padding: EdgeInsets.symmetric(horizontal: isLongText ? 6 : 0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -2635,7 +2635,7 @@ class _KeyButton extends StatelessWidget {
         ? AppPalette.live
         : (isHighlight
             ? AppPalette.accent
-            : (isSpecial ? const Color(0xFF1E293B) : const Color(0xFF334155)));
+            : (isSpecial ? AppPalette.cardStroke : AppPalette.bgPrimary));
     Color fg = (isHighlight || isAlert) ? AppPalette.bgSecondary : Colors.white;
 
     return GestureDetector(
@@ -2675,9 +2675,9 @@ class _WicketTypeButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF334155),
+          color: AppPalette.cardPrimary,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppPalette.cardStroke),
         ),

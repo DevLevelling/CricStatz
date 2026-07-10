@@ -103,11 +103,11 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => _showCreateSheet(context),
         backgroundColor: AppPalette.accent,
         foregroundColor: AppPalette.bgSecondary,
-        child: const Icon(Icons.add, size: 30),
+        child: Icon(Icons.add, size: 30),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: AppBottomNavBar(currentIndex: 0),
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: CustomScrollView(
             slivers: [
@@ -124,8 +124,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
                     child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xCC111721),
+                      decoration: BoxDecoration(
+                        color: AppPalette.bgPrimary,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(Icons.notifications_none,
+                                  child: Icon(Icons.notifications_none,
                                       color: AppPalette.textPrimary),
                                 ),
                                 Positioned(
@@ -218,8 +218,8 @@ void _showCreateSheet(BuildContext context) {
     backgroundColor: Colors.transparent,
     builder: (ctx) {
       return Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        decoration: const BoxDecoration(
+        padding: EdgeInsets.fromLTRB(16, 12, 16, 24),
+        decoration: BoxDecoration(
           color: AppPalette.bgPrimary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -231,7 +231,7 @@ void _showCreateSheet(BuildContext context) {
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Create',
                       style: TextStyle(
@@ -242,7 +242,7 @@ void _showCreateSheet(BuildContext context) {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppPalette.textMuted),
+                    icon: Icon(Icons.close, color: AppPalette.textMuted),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -310,7 +310,7 @@ class _CreateOptionTile extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 4),
           child: Row(
             children: [
               Container(
@@ -329,16 +329,16 @@ class _CreateOptionTile extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppPalette.textMuted,
                         fontSize: 12,
                       ),
@@ -346,7 +346,7 @@ class _CreateOptionTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right,
+              Icon(Icons.chevron_right,
                   color: AppPalette.textMuted, size: 22),
             ],
           ),
@@ -366,7 +366,7 @@ class _QuickTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 51,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
       ),
       child: Padding(
@@ -389,7 +389,7 @@ class _QuickTabs extends StatelessWidget {
               onTap: () => onTap(2),
             ),
             _TabItem(
-              label: "My Matche's",
+              label: 'My Matches',
               isSelected: selectedIndex == 3,
               onTap: () => onTap(3),
             ),
@@ -418,7 +418,7 @@ class _TabItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding:
-            const EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
+            EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -463,9 +463,9 @@ class _LiveMatchesSection extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
             ),
-            const Spacer(),
-            const Icon(Icons.circle, color: AppPalette.live, size: 8),
-            const SizedBox(width: 6),
+            Spacer(),
+            Icon(Icons.circle, color: AppPalette.live, size: 8),
+            SizedBox(width: 6),
             Text(
               'LIVE',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -507,48 +507,57 @@ class _LiveMatchCard extends StatelessWidget {
   final ScoreSummary? summary;
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x660A1F43),
-        border: Border.all(color: const Color(0x800A1F43)),
-        borderRadius: BorderRadius.circular(14),
+        color: AppPalette.cardPrimary,
+        border: Border.all(color: AppPalette.cardStroke, width: 1.2),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppPalette.cardStroke.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: const Color(0x990A1F43),
-                  borderRadius: BorderRadius.circular(4),
+                  color: AppPalette.accent,
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   match.matchFormat?.toUpperCase() ?? 'MATCH',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: const Color(0xFFE2E8F0),
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w700,
-                        height: 1.4,
+                        color: Colors.white,
+                        letterSpacing: 0.8,
+                        fontWeight: FontWeight.w800,
+                        height: 1.2,
                       ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${match.venue ?? "Venue"} • ${match.venueCity ?? ""}',
+                  'Final • Narendra Modi Stadium',
                   textAlign: TextAlign.right,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: AppPalette.textMuted,
-                        height: 1.4,
+                        fontWeight: FontWeight.w500,
                       ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -557,68 +566,64 @@ class _LiveMatchCard extends StatelessWidget {
               _TeamBadge(
                 flag: match.teamBId,
                 assetPath: AppAssets.flagAus,
-                faded: true,
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           if (summary != null) ...[
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0x0DFFFFFF)),
-              ),
-              child: Column(
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: const Color(0xFFCBD5E1)),
-                      children: [
-                        TextSpan(
-                          text:
-                              '${summary!.battingTeam ?? summary!.inningsName} is at ',
-                        ),
-                        TextSpan(
-                          text: '${summary!.runs}/${summary!.wickets}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppPalette.textMuted,
+                            ),
+                        children: [
+                          const TextSpan(text: 'India needs '),
+                          TextSpan(
+                            text: '42 runs ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: AppPalette.accent,
+                            ),
                           ),
-                        ),
-                        const TextSpan(text: ' in '),
-                        TextSpan(
-                          text: '${summary!.overs} overs',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                          const TextSpan(text: 'in '),
+                          TextSpan(
+                            text: '60 balls',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: AppPalette.textPrimary,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: (double.tryParse(summary!.overs) ?? 0) /
-                          (match.oversLimit.toDouble()),
-                      minHeight: 6,
-                      backgroundColor: const Color(0xFF334155),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppPalette.progress,
+                        ],
                       ),
                     ),
+                    Text(
+                      'RRR: 4.20',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppPalette.textMuted,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: 0.7,
+                    minHeight: 6,
+                    backgroundColor: AppPalette.cardStroke.withValues(alpha: 0.5),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppPalette.accent,
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
           ],
           SizedBox(
             width: double.infinity,
@@ -626,15 +631,18 @@ class _LiveMatchCard extends StatelessWidget {
               onPressed: () => Navigator.pushNamed(context, AppRoutes.live,
                   arguments: match.id),
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFF1F5F9),
-                foregroundColor: AppPalette.bgSecondary,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: AppPalette.accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: const Text(
                 'View Full Scorecard',
-                style: TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -645,61 +653,63 @@ class _LiveMatchCard extends StatelessWidget {
 }
 
 class _TeamBadge extends StatelessWidget {
-  const _TeamBadge(
-      {required this.flag, required this.assetPath, this.faded = false});
+  const _TeamBadge({required this.flag, required this.assetPath});
 
   final String flag;
   final String assetPath;
-  final bool faded;
 
   @override
   Widget build(BuildContext context) {
-    final double opacity = faded ? 0.55 : 1;
-    return Opacity(
-      opacity: opacity,
-      child: Column(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: const Color(0xFF334155),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0xFF475569), width: 2),
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                assetPath,
-                width: 52,
-                height: 52,
-                fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object error,
-                    StackTrace? stackTrace) {
-                  return Center(
-                    child: Text(
-                      flag
-                          .substring(0, flag.length > 2 ? 2 : flag.length)
-                          .toUpperCase(),
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: AppPalette.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  );
-                },
+    return Column(
+      children: [
+        Container(
+          width: 58,
+          height: 58,
+          decoration: BoxDecoration(
+            color: AppPalette.cardPrimary,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppPalette.cardStroke, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppPalette.cardStroke.withValues(alpha: 0.4),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
+            ],
+          ),
+          child: ClipOval(
+            child: Image.asset(
+              assetPath,
+              width: 54,
+              height: 54,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object error,
+                  StackTrace? stackTrace) {
+                return Center(
+                  child: Text(
+                    flag
+                        .substring(0, flag.length > 2 ? 2 : flag.length)
+                        .toUpperCase(),
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: AppPalette.textPrimary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            flag,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppPalette.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          flag,
+          style: TextStyle(
+            color: AppPalette.textPrimary,
+            fontWeight: FontWeight.w800,
+            fontSize: 15,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -711,54 +721,65 @@ class _ScoreCenter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (summary != null)
-          RichText(
-            text: TextSpan(
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(color: AppPalette.textPrimary),
-              children: [
-                TextSpan(
-                    text: '${summary!.runs}/${summary!.wickets} ',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 24)),
-                TextSpan(
-                  text: '(${summary!.overs})',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: AppPalette.textSubtle),
-                ),
-              ],
-            ),
-          )
-        else
+        if (summary != null) ...[
           Text(
-            'VS',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppPalette.textPrimary,
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
-        const SizedBox(height: 6),
-        if (summary != null)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              'LIVE',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppPalette.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
+            '${summary!.runs}/${summary!.wickets}',
+            style: TextStyle(
+              color: AppPalette.textPrimary,
+              fontWeight: FontWeight.w900,
+              fontSize: 32,
+              height: 1.0,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            '(${summary!.overs})',
+            style: TextStyle(
+              color: AppPalette.textMuted,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'vs',
+            style: TextStyle(
+              color: AppPalette.textSubtle,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ] else ...[
+          Text(
+            '342/5',
+            style: TextStyle(
+              color: AppPalette.textPrimary,
+              fontWeight: FontWeight.w900,
+              fontSize: 32,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '(40.0)',
+            style: TextStyle(
+              color: AppPalette.textMuted,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'vs',
+            style: TextStyle(
+              color: AppPalette.textSubtle,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -875,23 +896,41 @@ class _UpcomingCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 240,
-        padding: const EdgeInsets.all(13),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppPalette.cardOverlay.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPalette.cardStroke),
+          color: AppPalette.cardPrimary,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppPalette.cardStroke, width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: AppPalette.cardStroke.withValues(alpha: 0.25),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              time,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: AppPalette.textMuted,
-                    fontWeight: FontWeight.w700,
-                  ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  time,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppPalette.textMuted,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 16,
+                  color: AppPalette.textMuted,
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -904,7 +943,7 @@ class _UpcomingCard extends StatelessWidget {
                       teamA,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppPalette.textPrimary,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ],
@@ -921,7 +960,7 @@ class _UpcomingCard extends StatelessWidget {
                       teamB,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppPalette.textPrimary,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                     const SizedBox(width: 8),
@@ -930,10 +969,16 @@ class _UpcomingCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(subtitle,
-                style: const TextStyle(
-                    color: AppPalette.textSubtle, fontSize: 11)),
+            const SizedBox(height: 10),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: AppPalette.textSubtle,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
@@ -953,7 +998,7 @@ class _TeamInitialCircle extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: AppPalette.progress,
-        border: Border.all(color: const Color(0x1AFFFFFF)),
+        border: Border.all(color: AppPalette.cardStroke),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -1117,7 +1162,7 @@ class _ResultCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(13),
+      padding: EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: AppPalette.cardOverlay.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
@@ -1128,24 +1173,24 @@ class _ResultCard extends StatelessWidget {
           Row(
             children: [
               Text(lineOne,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.textPrimary,
                       fontWeight: FontWeight.w700)),
-              const Spacer(),
+              Spacer(),
               Text(when,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.textSubtle, fontSize: 10)),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Row(
             children: [
               Text(lineTwo,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.success, fontWeight: FontWeight.w700)),
-              const Spacer(),
+              Spacer(),
               Text(outcome,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppPalette.textSubtle, fontSize: 11)),
             ],
           ),

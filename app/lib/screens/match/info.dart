@@ -51,14 +51,14 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
   static const _ausFlag =
       'https://www.figma.com/api/mcp/asset/f4b32dcb-4957-466f-b827-2688b91170b1';
 
-  static const Color _cardBg = Color(0xFF0F172A);
-  static const Color _cardBorder = Color(0xFF1E293B);
+  static Color get _cardBg => AppPalette.cardPrimary;
+  static Color get _cardBorder => AppPalette.cardStroke;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 24),
@@ -98,9 +98,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
         child: Container(
           height: 72,
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: [
@@ -110,7 +110,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                   AppRoutes.home,
                   (route) => false,
                 ),
-                icon: const Icon(Icons.arrow_back_ios_new,
+                icon: Icon(Icons.arrow_back_ios_new,
                     color: AppPalette.textPrimary, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -131,7 +131,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                     Text(
                       _match?.matchFormat ?? 'Match Info',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: const Color(0xFFCBD5E1),
+                        color: AppPalette.textSubtle,
                             fontWeight: FontWeight.w500,
                           ),
                     ),
@@ -140,7 +140,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.share_outlined,
+                icon: Icon(Icons.share_outlined,
                     color: AppPalette.textPrimary, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
@@ -161,9 +161,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
           height: 51,
-          decoration: const BoxDecoration(
-            color: Color(0xF20A1F43),
-            border: Border(bottom: BorderSide(color: Color(0x1AFFFFFF))),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
+            border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Row(
             children: List.generate(tabs.length, (i) {
@@ -192,7 +192,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                         ),
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     child: Text(
                       tabs[i],
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -240,7 +240,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               errorBuilder: (_, __, ___) => Container(
                 color: _cardBorder,
                 alignment: Alignment.center,
-                child: const Icon(Icons.image_not_supported_outlined,
+                child: Icon(Icons.image_not_supported_outlined,
                     color: AppPalette.textMuted),
               ),
             ),
@@ -255,12 +255,12 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppPalette.live,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'MATCH RESULT',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -271,7 +271,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   'Australia won by 6 wickets',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -280,7 +280,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                         fontSize: 20,
                       ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   'Australia chased down 241 runs in 43 overs.\n'
                   'Travis Head scored a brilliant 137 off 120 balls\n'
@@ -290,7 +290,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                         height: 1.5,
                       ),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 SizedBox(
                   width: double.infinity,
                   height: 40,
@@ -365,9 +365,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.stadium_outlined,
+              Icon(Icons.stadium_outlined,
                   size: 20, color: AppPalette.textPrimary),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'Venue Details',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -395,7 +395,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 errorBuilder: (_, __, ___) => Container(
                   color: _cardBorder,
                   alignment: Alignment.center,
-                  child: const Icon(Icons.map_outlined,
+                  child: Icon(Icons.map_outlined,
                       color: AppPalette.textMuted),
                 ),
               ),
@@ -426,7 +426,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               Row(
                 children: [
                   leadingIcon,
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -448,7 +448,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
     return Row(
       children: [
         card(
-          leadingIcon: const Icon(Icons.cloud_outlined,
+          leadingIcon: Icon(Icons.cloud_outlined,
               color: AppPalette.textPrimary, size: 20),
           title: 'Weather',
           body: Column(
@@ -462,7 +462,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                       fontSize: 30,
                     ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 _match?.weatherDesc ?? 'N/A',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -470,13 +470,13 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                       fontWeight: FontWeight.w600,
                     ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.water_drop_outlined,
+                  Icon(Icons.water_drop_outlined,
                       size: 14, color: AppPalette.textMuted),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     'Humidity: ${_match?.humidity ?? "--%"}',
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -488,9 +488,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
             ],
           ),
         ),
-        const SizedBox(width: 16),
+        SizedBox(width: 16),
         card(
-          leadingIcon: const Icon(Icons.sports_cricket_outlined,
+          leadingIcon: Icon(Icons.sports_cricket_outlined,
               color: AppPalette.textPrimary, size: 20),
           title: 'Pitch',
           body: Column(
@@ -503,7 +503,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                       fontWeight: FontWeight.w700,
                     ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 _match?.pitchDesc ?? 'Spin friendly',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -525,13 +525,13 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                       ),
                       Expanded(
                         flex: _match?.spinRatio ?? 50,
-                        child: Container(color: const Color(0xFFF97316)),
+                        child: Container(color: AppPalette.live),
                       ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -565,21 +565,21 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
         decoration: BoxDecoration(
           color: Colors.transparent,
           shape: BoxShape.circle,
-          border: Border.all(color: const Color(0x33111F43), width: 2),
+          border: Border.all(color: AppPalette.cardStroke, width: 2),
         ),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.transparent,
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0x33111F43), width: 2),
+            border: Border.all(color: AppPalette.cardStroke, width: 2),
           ),
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(2),
             child: Image.network(
               url,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(Icons.flag_outlined,
+              errorBuilder: (_, __, ___) => Icon(Icons.flag_outlined,
                   color: AppPalette.textMuted, size: 20),
             ),
           ),
@@ -597,7 +597,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -623,9 +623,9 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.compare_arrows_outlined,
+                  Icon(Icons.compare_arrows_outlined,
                       size: 20, color: AppPalette.textPrimary),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     'Head-to-Head',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -645,7 +645,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 child: Text(
                   'LAST 10 MATCHES',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: const Color(0xFFCBD5E1),
+                        color: AppPalette.textSubtle,
                         fontWeight: FontWeight.w700,
                         fontSize: 10,
                       ),
@@ -660,7 +660,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 child: Column(
                   children: [
                     flagCircle(_indFlag),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'IND',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -672,7 +672,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                     Text(
                       '${_match?.headToHeadA ?? 0}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: const Color(0xFF60A5FA),
+                            color: AppPalette.accent,
                             fontWeight: FontWeight.w700,
                             fontSize: 24,
                           ),
@@ -683,7 +683,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
               Column(
                 children: [
                   Container(width: 1, height: 40, color: _cardBorder),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'VS',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -699,7 +699,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                 child: Column(
                   children: [
                     flagCircle(_ausFlag),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'AUS',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -711,7 +711,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
                     Text(
                       '${_match?.headToHeadB ?? 0}',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: const Color(0xFF60A5FA),
+                            color: AppPalette.accent,
                             fontWeight: FontWeight.w700,
                             fontSize: 24,
                           ),
@@ -723,7 +723,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           ),
           const SizedBox(height: 22),
           Container(height: 1, color: _cardBorder),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
@@ -739,7 +739,7 @@ class _MatchInfoScreenState extends State<MatchInfoScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0x801E293B),
+              color: AppPalette.cardStroke,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(

@@ -70,7 +70,7 @@ class AppRoutes {
       case playerStats:
         return buildPlayerStatsRoute();
       case profile:
-        return MaterialPageRoute(builder: (_) => const ProfileScreen());
+        return MaterialPageRoute(builder: (_) => ProfileScreen());
       default:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
     }

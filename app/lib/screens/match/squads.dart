@@ -9,17 +9,17 @@ import 'scoringsetup.dart';
 // DESIGN TOKENS (Copied from CreateMatch for consistency)
 // ─────────────────────────────────────────────────────────────────────────────
 class _Tokens {
-  static const Color surface1 = Color(0xFF0B1829);
-  static const Color surface2 = Color(0xFF0F2040);
-  static const Color surface3 = Color(0xFF162A4D);
-  static const Color border = Color(0xFF1E3055);
+  static Color get surface1 => AppPalette.bgPrimary;
+  static Color get surface2 => AppPalette.cardPrimary;
+  static Color get surface3 => AppPalette.bgPrimary;
+  static Color get border => AppPalette.cardStroke;
   static const Color teamA = Color(0xFF38BDF8);
   static const Color teamB = Color(0xFFF87171);
 
-  static const Color muted = Color(0xFF64748B);
+  static Color get muted => AppPalette.textMuted;
 
-  static const TextStyle labelStyle = TextStyle(
-    color: Color(0xFF94A3B8),
+  static TextStyle get labelStyle => TextStyle(
+    color: AppPalette.textMuted,
     fontSize: 11,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.8,
@@ -148,7 +148,7 @@ class _SquadsScreenState extends State<SquadsScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
+      builder: (_) => Center(
         child: CircularProgressIndicator(color: AppPalette.accent),
       ),
     );
@@ -242,7 +242,7 @@ class _SquadsScreenState extends State<SquadsScreen>
             // Tab Views
             Expanded(
               child: _isLoading 
-                ? const Center(child: CircularProgressIndicator(color: AppPalette.accent))
+                ? Center(child: CircularProgressIndicator(color: AppPalette.accent))
                 : TabBarView(
                     controller: _tabController,
                     physics: const BouncingScrollPhysics(),
@@ -296,8 +296,8 @@ class _Header extends StatelessWidget {
                 HapticFeedback.lightImpact();
                 Navigator.pop(context);
               },
-              customBorder: const CircleBorder(),
-              child: const Padding(
+              customBorder: CircleBorder(),
+              child: Padding(
                 padding: EdgeInsets.all(10),
                 child: Icon(Icons.arrow_back_ios_new_rounded,
                     color: AppPalette.textPrimary, size: 18),
@@ -312,7 +312,7 @@ class _Header extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text(
+                    Text(
                       'Squad Selection',
                       style: TextStyle(
                         fontSize: 22,
@@ -344,7 +344,7 @@ class _Header extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   'Select playing 11, Captain, and WK',
                   style: TextStyle(
@@ -469,7 +469,7 @@ class _PlayerList extends StatelessWidget {
       children: [
         // Meta header
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+          padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -602,7 +602,7 @@ class _PlayerCard extends StatelessWidget {
                     ),
                   ),
                   child: isActive
-                      ? const Icon(Icons.check, size: 16, color: _Tokens.surface1)
+                      ? Icon(Icons.check, size: 16, color: _Tokens.surface1)
                       : null,
                 ),
                 const SizedBox(width: 14),
@@ -755,7 +755,7 @@ class _BottomCtaState extends State<_BottomCta> {
     final isValid = selA >= minPlayersPerTeam && selB >= minPlayersPerTeam;
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: _Tokens.surface1,
         border: Border(top: BorderSide(color: _Tokens.border, width: 1)),
       ),
@@ -766,12 +766,12 @@ class _BottomCtaState extends State<_BottomCta> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 6, height: 6, decoration: const BoxDecoration(color: _Tokens.teamA, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: _Tokens.teamA, shape: BoxShape.circle)),
+              SizedBox(width: 6),
               Text('$selA/11', style: TextStyle(color: selA >= minPlayersPerTeam ? _Tokens.teamA : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(width: 16),
-              Container(width: 6, height: 6, decoration: const BoxDecoration(color: _Tokens.teamB, shape: BoxShape.circle)),
-              const SizedBox(width: 6),
+              SizedBox(width: 16),
+              Container(width: 6, height: 6, decoration: BoxDecoration(color: _Tokens.teamB, shape: BoxShape.circle)),
+              SizedBox(width: 6),
               Text('$selB/11', style: TextStyle(color: selB >= minPlayersPerTeam ? _Tokens.teamB : AppPalette.textPrimary, fontWeight: FontWeight.bold, fontSize: 13)),
             ],
           ),
@@ -792,8 +792,8 @@ class _BottomCtaState extends State<_BottomCta> {
                 decoration: BoxDecoration(
                   gradient: isValid ? LinearGradient(
                     colors: _pressed
-                        ? [const Color(0xFF0080BB), const Color(0xFF004FAA)]
-                        : [const Color(0xFF00B4E8), const Color(0xFF0063D8)],
+                        ? [AppPalette.accent.withValues(alpha: 0.7), AppPalette.accent.withValues(alpha: 0.5)]
+                        : [AppPalette.accent, AppPalette.accent.withValues(alpha: 0.8)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ) : null,
@@ -899,7 +899,7 @@ class _Step extends StatelessWidget {
                 ? AppPalette.accent.withValues(alpha: 0.15)
                 : isDone
                     ? AppPalette.success.withValues(alpha: 0.1)
-                    : const Color(0xFF1A2A40),
+                    : AppPalette.cardPrimary,
             border: Border.all(color: dotColor, width: isActive ? 2 : 1.5),
             boxShadow: isActive
                 ? [BoxShadow(color: AppPalette.accent.withValues(alpha: 0.4), blurRadius: 10, spreadRadius: 1)]
@@ -907,7 +907,7 @@ class _Step extends StatelessWidget {
           ),
           child: Center(
             child: isDone
-                ? const Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
+                ? Icon(Icons.check_rounded, color: AppPalette.success, size: 14)
                 : Text(
                     '$index',
                     style: TextStyle(
@@ -918,7 +918,7 @@ class _Step extends StatelessWidget {
                   ),
           ),
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         Text(
           label,
           style: TextStyle(
@@ -942,12 +942,12 @@ class _StepConnector extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 1.5,
-        margin: const EdgeInsets.only(bottom: 18, left: 6, right: 6),
+        margin: EdgeInsets.only(bottom: 18, left: 6, right: 6),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: filled
                 ? [AppPalette.success, AppPalette.success.withValues(alpha: 0.5)]
-                : [const Color(0xFF1E3050), const Color(0xFF1E3050)],
+                : [AppPalette.cardStroke, AppPalette.cardStroke],
           ),
         ),
       ),

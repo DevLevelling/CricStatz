@@ -41,9 +41,9 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
+      bottomNavigationBar: AppBottomNavBar(currentIndex: 0),
       body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppPalette.surfaceGradient),
+        decoration: BoxDecoration(gradient: AppPalette.surfaceGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -53,7 +53,7 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                   future: _fixturesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
+                      return Center(
                         child:
                             CircularProgressIndicator(color: AppPalette.accent),
                       );
@@ -70,7 +70,7 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                         const _FixturesData(
                             live: <Match>[], upcoming: <Match>[]);
                     if (data.live.isEmpty && data.upcoming.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           'No fixtures found.',
                           style: TextStyle(color: AppPalette.textMuted),
@@ -151,8 +151,8 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Color(0xCC111721),
+          decoration: BoxDecoration(
+            color: AppPalette.bgPrimary,
             border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
           ),
           child: Column(
@@ -180,7 +180,7 @@ class _UpcomingFixturesScreenState extends State<UpcomingFixturesScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Container(
                       width: 40,
                       height: 40,
@@ -217,7 +217,7 @@ class _QuickTabs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 51,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: AppPalette.cardStroke)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -256,7 +256,7 @@ class _TabItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding:
-            const EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
+            EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 14),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -286,13 +286,13 @@ class _FixtureCard extends StatelessWidget {
   static Color _getFormatColor(String? format) {
     switch (format?.toUpperCase()) {
       case 'T20':
-        return const Color(0xFF0A1F43);
+        return AppPalette.accent;
       case 'ODI':
-        return const Color(0xFF334155);
+        return AppPalette.cardStroke;
       case 'TEST':
-        return const Color(0xFFDC2626);
+        return AppPalette.live;
       default:
-        return const Color(0xFF1E293B);
+        return AppPalette.cardPrimary;
     }
   }
 
@@ -322,9 +322,9 @@ class _FixtureCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1C2431),
+        color: AppPalette.cardPrimary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2D3748)),
+        border: Border.all(color: AppPalette.cardStroke),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -336,7 +336,7 @@ class _FixtureCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 17),
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 17),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -344,7 +344,7 @@ class _FixtureCard extends StatelessWidget {
                   children: [
                     Image.asset(AppAssets.iconCal,
                         width: 14, height: 14, color: AppPalette.textMuted),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       matchTime.toUpperCase(),
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -457,7 +457,7 @@ class _FixtureCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFF2D3748)),
+          Divider(height: 1, color: AppPalette.cardStroke),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
@@ -467,7 +467,7 @@ class _FixtureCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _TeamBadge(assetPath: teamAFlag),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       Text(
                         match.teamAId.toUpperCase(),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -497,7 +497,7 @@ class _FixtureCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _TeamBadge(assetPath: teamBFlag),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       Text(
                         match.teamBId.toUpperCase(),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -516,15 +516,15 @@ class _FixtureCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
+                    Icon(Icons.location_on_outlined,
                         size: 12, color: AppPalette.textMuted),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         match.venue ?? 'Venue TBD',
@@ -575,7 +575,7 @@ class _FixtureCard extends StatelessWidget {
                           isLive
                               ? 'Update Score'
                               : (isToday ? 'Start Match' : 'Set Reminder'),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                         style: FilledButton.styleFrom(
                           backgroundColor: isLive || isToday
@@ -600,7 +600,7 @@ class _FixtureCard extends StatelessWidget {
                       ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppPalette.textPrimary,
-                        side: const BorderSide(color: Color(0xFF2D3748)),
+                        side: BorderSide(color: AppPalette.cardStroke),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         minimumSize: const Size(0, 40),
                         shape: RoundedRectangleBorder(
@@ -625,16 +625,16 @@ class _FixtureCard extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: AppPalette.bgSecondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Start Match?',
+        title: Text('Start Match?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         content: Text(
           'Are you sure you want to start ${match.teamAId} vs ${match.teamBId} at ${match.venue}?',
-          style: const TextStyle(color: AppPalette.textMuted),
+          style: TextStyle(color: AppPalette.textMuted),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('CANCEL',
+            child: Text('CANCEL',
                 style: TextStyle(color: AppPalette.textMuted)),
           ),
           FilledButton(
@@ -647,7 +647,7 @@ class _FixtureCard extends StatelessWidget {
               );
             },
             style: FilledButton.styleFrom(backgroundColor: AppPalette.accent),
-            child: const Text('START',
+            child: Text('START',
                 style: TextStyle(
                     color: AppPalette.bgSecondary,
                     fontWeight: FontWeight.bold)),
@@ -669,8 +669,8 @@ class _LiveFixtureCard extends StatelessWidget {
       width: 300,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0x660A1F43),
-        border: Border.all(color: const Color(0x990A1F43)),
+        color: AppPalette.cardPrimary,
+        border: Border.all(color: AppPalette.cardStroke),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -679,12 +679,12 @@ class _LiveFixtureCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppPalette.live.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: const Text(
+                child: Text(
                   'LIVE',
                   style: TextStyle(
                     color: AppPalette.live,
@@ -693,10 +693,10 @@ class _LiveFixtureCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               Text(
                 match.matchFormat?.toUpperCase() ?? 'MATCH',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppPalette.textMuted,
                   fontWeight: FontWeight.w700,
                   fontSize: 12,
@@ -704,21 +704,21 @@ class _LiveFixtureCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Text(
             '${match.teamAId} vs ${match.teamBId}',
-            style: const TextStyle(
+            style: TextStyle(
               color: AppPalette.textPrimary,
               fontWeight: FontWeight.w700,
               fontSize: 16,
             ),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           Text(
             match.venue ?? 'Venue TBD',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppPalette.textMuted,
               fontSize: 12,
             ),
@@ -778,7 +778,7 @@ class _TeamBadge extends StatelessWidget {
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        color: const Color(0xFF334155),
+        color: AppPalette.cardPrimary,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
