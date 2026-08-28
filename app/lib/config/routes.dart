@@ -10,12 +10,17 @@ import 'package:cricstatz/screens/match/upcoming_fixtures_screen.dart';
 import 'package:cricstatz/screens/match/scoreliveupdate.dart';
 import 'package:cricstatz/screens/stats/results_screen.dart';
 import 'package:cricstatz/screens/stats/player_stats_screen.dart';
+import 'package:cricstatz/screens/teams/team_list_screen.dart';
+import 'package:cricstatz/screens/teams/create_team_screen.dart';
+import 'package:cricstatz/screens/my_matches/my_matches_screen.dart';
+import 'package:cricstatz/screens/scoring/scoring_chats_screen.dart';
+import 'package:cricstatz/screens/onboarding/onboarding_screen.dart';
+import 'package:cricstatz/screens/about/about_screen.dart';
+import 'package:cricstatz/screens/feed/feed_screen.dart';
 import 'package:cricstatz/models/match.dart' as models;
 import 'package:flutter/material.dart';
 
 class AppRoutes {
-  // Use a non-root path so we can still use `home:` in MaterialApp
-  // without conflicting with the default "/" route.
   static const String home = '/home';
   static const String toss = '/matches/toss';
   static const String createMatch = '/matches/create';
@@ -28,6 +33,13 @@ class AppRoutes {
   static const String results = '/results';
   static const String playerStats = '/stats/player';
   static const String profile = '/profile';
+  static const String teams = '/teams';
+  static const String createTeam = '/teams/create';
+  static const String myMatches = '/my-matches';
+  static const String scoring = '/scoring';
+  static const String onboarding = '/onboarding';
+  static const String about = '/about';
+  static const String feed = '/feed';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     String? matchId;
@@ -71,6 +83,20 @@ class AppRoutes {
         return buildPlayerStatsRoute();
       case profile:
         return MaterialPageRoute(builder: (_) => ProfileScreen());
+      case teams:
+        return MaterialPageRoute(builder: (_) => const TeamListScreen());
+      case createTeam:
+        return MaterialPageRoute(builder: (_) => const CreateTeamScreen());
+      case myMatches:
+        return MaterialPageRoute(builder: (_) => const MyMatchesScreen());
+      case scoring:
+        return MaterialPageRoute(builder: (_) => const ScoringChatsScreen());
+      case onboarding:
+        return MaterialPageRoute(builder: (_) => const OnboardingScreen());
+      case about:
+        return MaterialPageRoute(builder: (_) => const AboutScreen());
+      case feed:
+        return MaterialPageRoute(builder: (_) => const FeedScreen());
       default:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
     }

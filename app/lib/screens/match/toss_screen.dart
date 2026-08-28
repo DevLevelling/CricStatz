@@ -241,7 +241,7 @@ class _TossScreenState extends State<TossScreen> {
         child: FilledButton(
           onPressed: action,
           style: FilledButton.styleFrom(
-            backgroundColor: action != null ? AppPalette.accent : AppPalette.accent.withOpacity(0.3),
+            backgroundColor: action != null ? AppPalette.accent : AppPalette.accent.withValues(alpha: 0.3),
             foregroundColor: AppPalette.bgSecondary,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -308,7 +308,7 @@ class _TeamTossCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: isSelected ? AppPalette.accent.withOpacity(0.1) : AppPalette.cardPrimary,
+          color: isSelected ? AppPalette.accent.withValues(alpha: 0.1) : AppPalette.cardPrimary,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: isSelected ? AppPalette.accent : AppPalette.cardStroke, width: 2),
         ),

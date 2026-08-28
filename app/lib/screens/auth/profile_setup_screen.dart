@@ -63,20 +63,28 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     setState(() => _isSubmitting = true);
 
-    final user = SupabaseService.currentUser!;
-    final displayName =
-        user.userMetadata?['full_name'] as String? ?? _usernameController.text;
-    final avatarUrl = user.userMetadata?['avatar_url'] as String?;
+    try {
+      final user = SupabaseService.currentUser!;
+      final displayName =
+          user.userMetadata?['full_name'] as String? ?? _usernameController.text;
+      final avatarUrl = user.userMetadata?['avatar_url'] as String?;
 
-    await context.read<AuthProvider>().createProfile(
-          username: _usernameController.text.trim(),
-          displayName: displayName,
-          avatarUrl: avatarUrl,
-          role: _selectedRole,
+      await context.read<AuthProvider>().createProfile(
+            username: _usernameController.text.trim(),
+            displayName: displayName,
+            avatarUrl: avatarUrl,
+            role: _selectedRole,
+          );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to set up profile: $e')),
         );
-
-    if (mounted) {
-      setState(() => _isSubmitting = false);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 

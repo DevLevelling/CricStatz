@@ -27,6 +27,13 @@ coverage/
 .idea/
 *.iml
 
+# AI coding tools
+.cursor/
+.antigravity/
+.codex/
+.copilot/
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db
@@ -46,3 +53,5 @@ npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 *.log
+
+.AGENTS.md

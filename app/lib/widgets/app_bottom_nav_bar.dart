@@ -14,37 +14,51 @@ class AppBottomNavBar extends StatelessWidget {
       backgroundColor: AppPalette.bgPrimary,
       selectedItemColor: AppPalette.navActive,
       unselectedItemColor: AppPalette.navInactive,
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700),
+      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11),
+      elevation: 8,
       currentIndex: currentIndex,
       onTap: (int index) {
         if (index == currentIndex) return;
         switch (index) {
           case 0:
             Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (r) => false);
-            break;
           case 1:
             Navigator.pushNamed(context, AppRoutes.playerStats);
-            break;
+          case 2:
+            Navigator.pushNamed(context, AppRoutes.teams);
+          case 3:
+            Navigator.pushNamed(context, AppRoutes.scoring);
           case 4:
             Navigator.pushNamed(context, AppRoutes.profile);
-            break;
-          default:
-            // Search, Chats — not yet implemented
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Coming soon!'),
-                duration: Duration(seconds: 1),
-              ),
-            );
-            break;
         }
       },
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.bar_chart_rounded), label: 'Stats'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Chats'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home_outlined),
+          activeIcon: Icon(Icons.home_rounded),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.bar_chart_outlined),
+          activeIcon: Icon(Icons.bar_chart_rounded),
+          label: 'Stats',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.group_outlined),
+          activeIcon: Icon(Icons.group_rounded),
+          label: 'Teams',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.sports_cricket_outlined),
+          activeIcon: Icon(Icons.sports_cricket_rounded),
+          label: 'Scoring',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person_outline_rounded),
+          activeIcon: Icon(Icons.person_rounded),
+          label: 'Profile',
+        ),
       ],
     );
   }

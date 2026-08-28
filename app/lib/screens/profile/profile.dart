@@ -1,8 +1,10 @@
 import 'package:cricstatz/config/palette.dart';
+import 'package:cricstatz/config/routes.dart';
 import 'package:cricstatz/providers/auth_provider.dart';
 import 'package:cricstatz/providers/theme_provider.dart';
 import 'package:cricstatz/services/profile_service.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:provider/provider.dart';
 
 String _formatRole(String role) {
@@ -66,7 +68,7 @@ class _Header extends StatelessWidget {
           ),
           const _SunMoonThemeSwitch(),
           SizedBox(width: 4),
-          PopupMenuButton<String>(
+            PopupMenuButton<String>(
             icon: Icon(
               Icons.settings_outlined,
               color: AppPalette.textPrimary,
@@ -78,12 +80,45 @@ class _Header extends StatelessWidget {
                 if (context.mounted) {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 }
+              } else if (value == 'about') {
+                if (context.mounted) {
+                  Navigator.of(context).pushNamed(AppRoutes.about);
+                }
+              } else if (value == 'rate') {
+                final inAppReview = InAppReview.instance;
+                if (await inAppReview.isAvailable()) {
+                  inAppReview.requestReview();
+                } else {
+                  inAppReview.openStoreListing(
+                      appStoreId: 'com.cricstatz.cricstatz');
+                }
               }
             },
             itemBuilder: (context) => const [
               PopupMenuItem<String>(
+                value: 'about',
+                child: Row(children: [
+                  Icon(Icons.info_outline_rounded, size: 18),
+                  SizedBox(width: 8),
+                  Text('About CricStatz'),
+                ]),
+              ),
+              PopupMenuItem<String>(
+                value: 'rate',
+                child: Row(children: [
+                  Icon(Icons.star_outline_rounded, size: 18),
+                  SizedBox(width: 8),
+                  Text('Rate the App'),
+                ]),
+              ),
+              PopupMenuDivider(),
+              PopupMenuItem<String>(
                 value: 'logout',
-                child: Text('Logout'),
+                child: Row(children: [
+                  Icon(Icons.logout_rounded, size: 18, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Logout', style: TextStyle(color: Colors.red)),
+                ]),
               ),
             ],
           ),
@@ -243,7 +278,9 @@ void _showEditProfileSheet(BuildContext context) {
                             final newDisplay =
                                 displayNameController.text.trim();
                             if (newUsername.isEmpty ||
-                                newDisplay.isEmpty) return;
+                                newDisplay.isEmpty) {
+                              return;
+                            }
 
                             setSheetState(() => isSaving = true);
 
@@ -323,7 +360,7 @@ class _ProfileHeaderCard extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppPalette.accent.withOpacity(0.2),
+              color: AppPalette.accent.withValues(alpha: 0.2),
               width: 4,
             ),
           ),
@@ -626,7 +663,7 @@ class _MatchCard extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppPalette.cardStroke.withOpacity(0.5),
+                          color: AppPalette.cardStroke.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(Icons.person,
@@ -649,7 +686,7 @@ class _MatchCard extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: resultColor.withOpacity(0.1),
+                  color: resultColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
