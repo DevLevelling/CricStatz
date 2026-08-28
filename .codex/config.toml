@@ -1,5 +1,0 @@
-# CricStatz – Codex MCP configuration
-# Run: codex mcp login figma  (to authenticate)
-
-[mcp_servers.figma]
-url = "https://mcp.figma.com/mcp"

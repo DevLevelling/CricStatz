@@ -173,6 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               } else if (index == 2) {
                                 Navigator.push(
                                     context, AppRoutes.buildResultsRoute());
+                              } else if (index == 3) {
+                                Navigator.pushNamed(context, AppRoutes.myMatches);
                               }
                             },
                           ),
@@ -266,6 +268,10 @@ void _showCreateSheet(BuildContext context) {
                 icon: Icons.group_add_outlined,
                 label: 'Create New Team',
                 description: 'Manage players and team statistics',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushNamed(context, AppRoutes.createTeam);
+                },
               ),
               _CreateOptionTile(
                 icon: Icons.post_add_outlined,

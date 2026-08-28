@@ -19,8 +19,20 @@ class ProfileService {
     String? avatarUrl,
     required String role,
   }) async {
-    final inviteCode = await SupabaseService.client
-        .rpc('generate_invite_code') as String;
+    String inviteCode;
+    try {
+      inviteCode = await SupabaseService.client
+          .rpc('generate_invite_code') as String;
+    } catch (_) {
+      // Fallback: Generate a random 6-character uppercase alphanumeric code locally
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final radixStr = timestamp.toRadixString(36).toUpperCase();
+      if (radixStr.length >= 6) {
+        inviteCode = radixStr.substring(radixStr.length - 6);
+      } else {
+        inviteCode = radixStr.padLeft(6, 'A');
+      }
+    }
 
     final data = await SupabaseService.client.from('profiles').insert({
       'id': userId,

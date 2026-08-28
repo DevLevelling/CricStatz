@@ -144,6 +144,17 @@ class MatchService {
     return (rows as List).map((e) => Match.fromJson(e)).toList();
   }
 
+  static Future<List<Match>> getMyMatches() async {
+    final userId = SupabaseService.currentUser!.id;
+    final data = await SupabaseService.client
+        .from('matches')
+        .select()
+        .eq('created_by', userId)
+        .order('created_at', ascending: false);
+
+    return (data as List).map((e) => Match.fromJson(e)).toList();
+  }
+
   static Future<Match> getMatchDetails(String matchId) async {
     final data = await SupabaseService.client
         .from('matches')

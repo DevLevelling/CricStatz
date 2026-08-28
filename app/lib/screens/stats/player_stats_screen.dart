@@ -75,7 +75,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
           .eq('user_id', userId);
       return _aggregateFromMatchRows(stats as List<dynamic>);
     } catch (e) {
-      print('Error loading player stats: $e');
+      debugPrint('Error loading player stats: $e');
       return _emptyStats();
     }
   }
@@ -289,7 +289,7 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppPalette.live.withOpacity(0.1),
+                color: AppPalette.live.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.arrow_back, color: AppPalette.live),

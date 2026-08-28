@@ -6,6 +6,8 @@ import 'package:cricstatz/services/match_service.dart';
 import 'package:cricstatz/widgets/skeleton_loaders.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:share_plus/share_plus.dart';
+
 
 class MatchScoreboardScreen extends StatefulWidget {
   final String? matchId;
@@ -275,7 +277,18 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                    final teamA = match?.teamAId ?? 'Team A';
+                    final teamB = match?.teamBId ?? 'Team B';
+                    final format = match?.matchFormat ?? '';
+                    final status = match?.status ?? '';
+                    final shareText = '🏏 CricStatz Match\n'
+                        '$teamA vs $teamB'
+                        '${format.isNotEmpty ? ' • $format' : ''}\n'
+                        '${status.isNotEmpty ? 'Status: $status\n' : ''}'
+                        '\nScored with CricStatz — Live Cricket Scoring & Stats';
+                    Share.share(shareText);
+                  },
                 icon: Icon(
                   Icons.share_outlined,
                   color: AppPalette.textPrimary,

@@ -7,6 +7,8 @@ import 'package:cricstatz/models/player.dart';
 import 'package:cricstatz/services/match_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:in_app_review/in_app_review.dart';
+
 
 class ScoreLiveUpdateScreen extends StatefulWidget {
   const ScoreLiveUpdateScreen({super.key});
@@ -1321,6 +1323,16 @@ class _ScoreLiveUpdateScreenState extends State<ScoreLiveUpdateScreen> {
           AppRoutes.results,
           (route) => false,
         );
+        // Prompt user to rate the app after completing a match
+        try {
+          final inAppReview = InAppReview.instance;
+          if (await inAppReview.isAvailable()) {
+            await Future.delayed(const Duration(seconds: 2));
+            inAppReview.requestReview();
+          }
+        } catch (_) {
+          // Non-critical, ignore any in_app_review errors
+        }
       }).catchError((_) {
         if (!mounted) return;
         _isTransitionInProgress = false;
