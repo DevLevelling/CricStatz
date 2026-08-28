@@ -285,8 +285,10 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
   }
 
   Widget _buildPlayingXIHeader(BuildContext context) {
+    final teamKey = _isIndiaSelected ? 'teamA' : 'teamB';
+    final count = (_playersData?[teamKey]?['playingXI'] as List<dynamic>?)?.length ?? 0;
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -305,7 +307,7 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              '11 PLAYERS',
+              '$count PLAYERS',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: AppPalette.textSubtle,
                     fontWeight: FontWeight.w700,
@@ -319,7 +321,9 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
   }
 
   Widget _buildPlayersList(BuildContext context) {
-    final players = (_playersData?['playingXI'] as List<dynamic>?)?.map((p) => _PlayerRowData(
+    final teamKey = _isIndiaSelected ? 'teamA' : 'teamB';
+    final teamData = _playersData?[teamKey];
+    final players = (teamData?['playingXI'] as List<dynamic>?)?.map((p) => _PlayerRowData(
       name: p['name'],
       role: p['role'],
       stat: p['stat'] ?? '',
@@ -327,6 +331,18 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
       badge: p['badge'],
       imageUrl: p['imageUrl'] ?? '',
     )).toList() ?? [];
+
+    if (players.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+        child: Center(
+          child: Text(
+            'No playing XI players selected for this team.',
+            style: TextStyle(color: AppPalette.textMuted, fontSize: 14),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -345,11 +361,17 @@ class _MatchPlayersScreenState extends State<MatchPlayersScreen> {
   }
 
   Widget _buildBenchSection(BuildContext context) {
-    final bench = (_playersData?['bench'] as List<dynamic>?)?.map((p) => _BenchRowData(
+    final teamKey = _isIndiaSelected ? 'teamA' : 'teamB';
+    final teamData = _playersData?[teamKey];
+    final bench = (teamData?['bench'] as List<dynamic>?)?.map((p) => _BenchRowData(
       name: p['name'],
       role: p['role'],
       imageUrl: p['imageUrl'] ?? '',
     )).toList() ?? [];
+
+    if (bench.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       width: double.infinity,

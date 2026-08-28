@@ -228,33 +228,123 @@ class MatchService {
   }
 
   static Future<Map<String, dynamic>> getMatchPlayers(String matchId) async {
-    // Assumes a `match_players` table with JSON columns:
-    // - playing_xi: array of { name, role, stat, badge }
-    // - bench: array of { name, role }
-    final data = await SupabaseService.client
-        .from('match_players')
-        .select('playing_xi, bench')
-        .eq('match_id', matchId)
-        .maybeSingle();
+    try {
+      final matchData = await SupabaseService.client
+          .from('matches')
+          .select('team_a_squad, team_b_squad')
+          .eq('id', matchId)
+          .maybeSingle();
 
-    if (data == null) {
+      if (matchData == null) {
+        return {
+          'teamA': {
+            'playingXI': <Map<String, dynamic>>[],
+            'bench': <Map<String, dynamic>>[],
+          },
+          'teamB': {
+            'playingXI': <Map<String, dynamic>>[],
+            'bench': <Map<String, dynamic>>[],
+          },
+        };
+      }
+
+      final teamASquadIds = List<String>.from(matchData['team_a_squad'] as List<dynamic>? ?? []);
+      final teamBSquadIds = List<String>.from(matchData['team_b_squad'] as List<dynamic>? ?? []);
+
+      // Fallback: If both squads are empty, load all profiles to avoid a blank page
+      if (teamASquadIds.isEmpty && teamBSquadIds.isEmpty) {
+        final allProfiles = await SupabaseService.client
+            .from('profiles')
+            .select('id, username, display_name, avatar_url, role')
+            .limit(30);
+        
+        final profilesList = List<Map<String, dynamic>>.from(allProfiles as List<dynamic>);
+        final players = profilesList.map((p) => {
+          'name': p['display_name'] ?? p['username'] ?? 'Player',
+          'role': p['role'] ?? 'All-Rounder',
+          'stat': '0 Runs',
+          'subStat': '0 Wkts',
+          'imageUrl': p['avatar_url'] ?? '',
+        }).toList();
+
+        final playingXI = players.take(11).toList();
+        final bench = players.skip(11).toList();
+
+        return {
+          'teamA': {
+            'playingXI': playingXI,
+            'bench': bench,
+          },
+          'teamB': {
+            'playingXI': playingXI.map((p) => {...p, 'name': '${p['name']} (B)'}).toList(),
+            'bench': bench.map((p) => {...p, 'name': '${p['name']} (B)'}).toList(),
+          },
+        };
+      }
+
+      // Fetch team A profiles
+      List<Map<String, dynamic>> teamAProfiles = [];
+      if (teamASquadIds.isNotEmpty) {
+        final data = await SupabaseService.client
+            .from('profiles')
+            .select('id, username, display_name, avatar_url, role')
+            .inFilter('id', teamASquadIds);
+        
+        final profilesList = List<Map<String, dynamic>>.from(data as List<dynamic>);
+        profilesList.sort((a, b) => teamASquadIds.indexOf(a['id'] as String).compareTo(teamASquadIds.indexOf(b['id'] as String)));
+        
+        teamAProfiles = profilesList.map((p) => {
+          'name': p['display_name'] ?? p['username'] ?? 'Player',
+          'role': p['role'] ?? 'All-Rounder',
+          'stat': '0 Runs',
+          'subStat': '0 Wkts',
+          'imageUrl': p['avatar_url'] ?? '',
+        }).toList();
+      }
+
+      // Fetch team B profiles
+      List<Map<String, dynamic>> teamBProfiles = [];
+      if (teamBSquadIds.isNotEmpty) {
+        final data = await SupabaseService.client
+            .from('profiles')
+            .select('id, username, display_name, avatar_url, role')
+            .inFilter('id', teamBSquadIds);
+        
+        final profilesList = List<Map<String, dynamic>>.from(data as List<dynamic>);
+        profilesList.sort((a, b) => teamBSquadIds.indexOf(a['id'] as String).compareTo(teamBSquadIds.indexOf(b['id'] as String)));
+        
+        teamBProfiles = profilesList.map((p) => {
+          'name': p['display_name'] ?? p['username'] ?? 'Player',
+          'role': p['role'] ?? 'All-Rounder',
+          'stat': '0 Runs',
+          'subStat': '0 Wkts',
+          'imageUrl': p['avatar_url'] ?? '',
+        }).toList();
+      }
+
       return {
-        'playingXI': <Map<String, dynamic>>[],
-        'bench': <Map<String, dynamic>>[],
+        'teamA': {
+          'playingXI': teamAProfiles.take(11).toList(),
+          'bench': teamAProfiles.skip(11).toList(),
+        },
+        'teamB': {
+          'playingXI': teamBProfiles.take(11).toList(),
+          'bench': teamBProfiles.skip(11).toList(),
+        },
+      };
+    } catch (e) {
+      _logger.e('Error getting match players: $e');
+      return {
+        'teamA': {
+          'playingXI': <Map<String, dynamic>>[],
+          'bench': <Map<String, dynamic>>[],
+        },
+        'teamB': {
+          'playingXI': <Map<String, dynamic>>[],
+          'bench': <Map<String, dynamic>>[],
+        },
       };
     }
-
-    final playingXi = (data['playing_xi'] as List<dynamic>? ?? [])
-        .map((e) => e as Map<String, dynamic>)
-        .toList();
-    final bench = (data['bench'] as List<dynamic>? ?? [])
-        .map((e) => e as Map<String, dynamic>)
-        .toList();
-
-    return {
-      'playingXI': playingXi,
-      'bench': bench,
-    };
   }
 
   static Future<Match?> getLatestLiveMatch() async {
